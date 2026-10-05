@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Log in</title>
+  <link rel="stylesheet" href="/css/login.css">
+</head>
+<body>
+  <main class="login">
+    <h1>Log in</h1>
+    <p class="subtitle">Book and manage your appointments.</p>
+
+    <form action="/login" method="post">
+      <label for="username">Username</label>
+      <input type="text" id="username" name="username" autocomplete="username" required autofocus>
+
+      <label for="password">Password</label>
+      <input type="password" id="password" name="password" autocomplete="current-password" required>
+
+      <button type="submit">Log in</button>
+    </form>
+
+    <section class="register">
+      <h2>New here?</h2>
+      <p>Create an account to get started.</p>
+      <div class="register-links">
+        <a href="/register/user">Sign up as a customer</a>
+        <a href="/register/provider">Sign up as a service provider</a>
+      </div>
+    </section>
+  </main>
+</body>
+</html>

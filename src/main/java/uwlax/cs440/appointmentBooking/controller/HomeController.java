@@ -8,6 +8,6 @@ public class HomeController {
 
     @GetMapping("/")
     public String home() {
-        return "home"; // matches templates/home.html (no .html needed)
+        return "login"; // matches templates/home.html (no .html needed)
     }
 }

@@ -1,0 +1,96 @@
+:root {
+  --bg: #eef3f2;
+  --card: #ffffff;
+  --text: #1c2b2a;
+  --muted: #5d6f6d;
+  --accent: #1f6f68;
+  --accent-dark: #174f4a;
+  --border: #c9d6d4;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  background: var(--bg);
+  color: var(--text);
+  font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+
+.login {
+  width: 100%;
+  max-width: 380px;
+  padding: 2rem;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+}
+
+h1 { margin: 0 0 0.25rem; font-size: 1.75rem; }
+h2 { margin: 0 0 0.25rem; font-size: 1.05rem; }
+
+.subtitle, .register p { margin: 0 0 1.25rem; color: var(--muted); }
+
+label {
+  display: block;
+  margin-bottom: 0.35rem;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+input {
+  width: 100%;
+  margin-bottom: 1rem;
+  padding: 0.65rem 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  font-size: 1rem;
+}
+
+input:focus, button:focus-visible, .register-links a:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 1px;
+}
+
+button {
+  width: 100%;
+  padding: 0.7rem;
+  border: none;
+  border-radius: 6px;
+  background: var(--accent);
+  color: #fff;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+button:hover { background: var(--accent-dark); }
+
+.register {
+  margin-top: 1.75rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--border);
+}
+
+.register-links {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.register-links a {
+  padding: 0.6rem;
+  border: 1px solid var(--accent);
+  border-radius: 6px;
+  color: var(--accent);
+  text-align: center;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.register-links a:hover { background: var(--bg); }

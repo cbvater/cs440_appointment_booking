@@ -1,0 +1,104 @@
+:root {
+  --bg: #eef3f2;
+  --card: #ffffff;
+  --text: #1c2b2a;
+  --muted: #5d6f6d;
+  --accent: #1f6f68;
+  --accent-dark: #174f4a;
+  --border: #c9d6d4;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: var(--bg);
+  color: var(--text);
+  font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+
+/* Navigation bar */
+.navbar {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 2rem;
+  background: var(--card);
+  border-bottom: 1px solid var(--border);
+}
+
+.nav-left,
+.nav-right {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.nav-button {
+  width: auto;
+  padding: 0.6rem 1rem;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--text);
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.nav-button:hover {
+  background: var(--bg);
+  color: var(--accent);
+}
+
+.nav-button.active {
+  background: var(--accent);
+  color: #fff;
+}
+
+.nav-button:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 1px;
+}
+
+/* Main content */
+main {
+  width: 100%;
+  max-width: 900px;
+  margin: 2.5rem auto;
+  padding: 0 1.5rem;
+}
+
+h1 {
+  margin: 0 0 0.5rem;
+  font-size: 1.75rem;
+}
+
+main p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 1rem;
+}
+
+/* Appointment card styling for later */
+.appointment {
+  margin-top: 1.25rem;
+  padding: 1.25rem;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+}
+
+.appointment h2 {
+  margin: 0 0 0.5rem;
+  font-size: 1.05rem;
+}
+
+.appointment p {
+  margin: 0.25rem 0;
+  color: var(--muted);
+}

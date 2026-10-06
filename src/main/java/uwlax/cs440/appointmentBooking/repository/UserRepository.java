@@ -4,6 +4,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import uwlax.cs440.appointmentBooking.model.User;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * REPOSITORY LAYER: talks to the database, and nothing else.
@@ -25,4 +26,6 @@ import java.util.List;
  */
 public interface UserRepository extends JpaRepository<User, Long> {
 
+    Optional<User> findByUsername(String username);
+    boolean existsByUsername(String username);
 }

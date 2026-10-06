@@ -56,6 +56,9 @@ public class User {
     public void setFirstName(String firstName) {
         this.firstName = firstName;
     }
+    public long getUserId(){
+        return this.userId;
+    }
     public String getLastName(){
         return this.lastName;
     }

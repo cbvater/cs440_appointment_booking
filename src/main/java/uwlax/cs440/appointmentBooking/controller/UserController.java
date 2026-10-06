@@ -1,6 +1,15 @@
 package uwlax.cs440.appointmentBooking.controller;
 
+import org.springframework.ui.Model;
+import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import uwlax.cs440.appointmentBooking.model.User;
+import uwlax.cs440.appointmentBooking.service.UserService;
+
+import java.util.Optional;
 
 /**
  * CONTROLLER LAYER: handles web requests and decides what the user sees next.
@@ -28,4 +37,63 @@ import org.springframework.stereotype.Controller;
 @Controller
 public class UserController {
 
+    private final UserService userService;
+    public UserController(UserService userService){
+        this.userService = userService;
+    }
+
+    @GetMapping("/login")
+    public String showLoginPage() {
+        return "login"; // renders templates/login.html
+    }
+
+    @PostMapping("/login")
+    public String handleUserLogin(@RequestParam String username,
+                              @RequestParam String password,
+                              HttpSession session,
+                              Model model) {
+        Optional<User> user = userService.userLogin(username, password);
+        if(user.isPresent()) {
+            session.setAttribute("userId", user.get().getUserId());
+            session.setAttribute("role", user.get().getRole());
+
+            if(user.get().getRole().equals("User")){
+                return "redirect:/userHome";
+            }
+            if(user.get().getRole().equals("Service Provider")){
+                return "redirect:/serviceProviderHome";
+            }
+            if(user.get().getRole().equals("Admin")){
+                return "redirect:/adminHome";
+            }
+        }
+        model.addAttribute("error", "Invalid username or password");
+        return "login";
+    }
+
+    @GetMapping("/userHome")
+    public String showHome(HttpSession session) {
+        if (session.getAttribute("userId") == null)
+        {
+            return "redirect:/login"; // not logged in
+        }
+        return "userHome";
+    }
+
+
+    @GetMapping("/serviceProviderHome")
+    public String showProviderHome(HttpSession session) {
+        if (!"Service Provider".equals(session.getAttribute("role"))) {
+            return "redirect:/login";
+        }
+        return "serviceProviderHome";
+    }
+
+    @GetMapping("/adminHome")
+    public String showAdminHome(HttpSession session) {
+        if (!"Admin".equals(session.getAttribute("role"))) {
+            return "redirect:/login";
+        }
+        return "adminHome";
+    }
 }

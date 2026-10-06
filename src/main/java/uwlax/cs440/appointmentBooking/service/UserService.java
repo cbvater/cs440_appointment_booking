@@ -1,6 +1,10 @@
 package uwlax.cs440.appointmentBooking.service;
 
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import uwlax.cs440.appointmentBooking.model.User;
+import uwlax.cs440.appointmentBooking.repository.UserRepository;
+import java.util.Optional;
 
 /**
  * SERVICE LAYER: the business logic. The "rules" of the app live here.
@@ -24,5 +28,23 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class UserService {
+    private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
+
+    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+        this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
+    }
+
+    public Optional<User> userLogin(String username, String password){
+        Optional<User> found = userRepository.findByUsername(username);
+
+        if (found.isPresent()
+                && passwordEncoder.matches(password, found.get().getPasswordHash())) {
+            return found;
+        }
+        return Optional.empty();
+    }
+
 
 }

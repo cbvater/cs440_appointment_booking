@@ -92,5 +92,14 @@ button:hover { background: var(--accent-dark); }
   text-decoration: none;
   font-weight: 600;
 }
+.error {
+  margin: 0 0 1rem;
+  padding: 0.6rem 0.75rem;
+  border: 1px solid #b3261e;
+  border-radius: 6px;
+  background: #fbeceb;
+  color: #8c1d18;
+  font-size: 0.9rem;
+}
 
 .register-links a:hover { background: var(--bg); }

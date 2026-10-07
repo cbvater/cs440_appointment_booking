@@ -1,8 +1,29 @@
 package uwlax.cs440.appointmentBooking.model;
 
 import jakarta.persistence.*;
+/**
+ * MODEL LAYER: describes the data. One User object = one row in the "users" table.
+ *
+ * Used by: UserRepository (saves and loads it), UserService (creates and
+ * checks it), and controllers (only passed along, never changed directly).
+ * Calls: nothing. It holds data and has no logic of its own.
+ *
+ * Both customers, service providers, and admins are stored here. The "role" field
+ * tells them apart.
+ *
+ * What belongs here:
+ *  - Fields that map to database columns, with JPA annotations (@Column, etc.)
+ *  - A no-argument constructor (JPA requires it)
+ *  - Getters and setters for each field
+ *
+ * What does NOT belong here:
+ *  - Password hashing, duplicate checks, or role rules (service)
+ *  - Database queries (repository)
+ *  - Anything about web requests or pages (controller)
+ *
+ * Note: the table is named "users" because "user" is a reserved word in Postgres.
+ */
 
-// this will define the User table
 @Entity
 @Table(name = "users")
 public class User {
@@ -34,6 +55,9 @@ public class User {
     }
     public void setFirstName(String firstName) {
         this.firstName = firstName;
+    }
+    public long getUserId(){
+        return this.userId;
     }
     public String getLastName(){
         return this.lastName;

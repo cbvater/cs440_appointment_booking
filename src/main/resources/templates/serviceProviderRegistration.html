@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Service Provider Registration</title>
+    <link rel="stylesheet" href="/css/serviceProviderRegistration.css">
+</head>
+
+<body>
+<main class="login">
+    <h1>Service Provider Registration</h1>
+    <p class="subtitle">Create your provider account to offer services.</p>
+
+    <form action="/register/provider" method="post">
+        <!-- Error message -->
+        <p class="error" th:if="${error}" th:text="${error}"></p>
+
+        <label for="company">Company</label>
+        <input type="text" id="company" name="company" required>
+
+        <label for="firstName">First Name</label>
+        <input type="text" id="firstName" name="firstName" required>
+
+        <label for="lastName">Last Name</label>
+        <input type="text" id="lastName" name="lastName" required>
+
+        <label for="username">Username</label>
+        <input type="text" id="username" name="username" required>
+
+        <label for="password">Password</label>
+        <input type="password" id="password" name="password" required>
+
+        <button type="submit">Register</button>
+    </form>
+
+    <section class="register">
+        <h2>Already have an account?</h2>
+        <p>Log in to manage your services.</p>
+        <div class="register-links">
+            <a href="/login">Log in</a>
+        </div>
+    </section>
+</main>
+</body>
+</html>

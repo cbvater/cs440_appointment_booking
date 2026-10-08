@@ -17,16 +17,22 @@
         <p class="error" th:if="${error}" th:text="${error}"></p>
 
         <label for="company">Company</label>
-        <input type="text" id="company" name="company" required>
+        <input type="text" id="company" name="company" th:value="${company}" required>
 
         <label for="firstName">First Name</label>
-        <input type="text" id="firstName" name="firstName" required>
+        <input type="text" id="firstName" name="firstName" th:value="${firstName}" required>
 
         <label for="lastName">Last Name</label>
-        <input type="text" id="lastName" name="lastName" required>
+        <input type="text" id="lastName" name="lastName" th:value="${lastName}" required>
 
         <label for="username">Username</label>
-        <input type="text" id="username" name="username" required>
+        <input type="text" id="username" name="username" th:value="${username}" required>
+
+        <label for="qualification">Qualification</label>
+        <input type="text" id="qualification" name="qualification" th:value="${qualification}" required>
+
+        <label for="serviceType">Service Type</label>
+        <input type="text" id="serviceType" name="serviceType" th:value="${serviceType}" required>
 
         <label for="password">Password</label>
         <input type="password" id="password" name="password" required>

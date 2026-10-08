@@ -11,6 +11,7 @@ public class ServiceProvider {
     @JoinColumn(name = "user_id", nullable = false, unique = true)
     private User user;
 
+
     private String qualification;
     private String company;
     private String serviceType;

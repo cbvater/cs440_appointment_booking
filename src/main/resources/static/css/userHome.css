@@ -20,7 +20,7 @@ body {
   font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
 }
 
-/* Navigation bar */
+/* NAVBAR */
 .navbar {
   width: 100%;
   display: flex;
@@ -65,7 +65,100 @@ body {
   outline-offset: 1px;
 }
 
-/* Main content */
+/* PROFILE DROPDOWN */
+.profile-wrapper {
+  position: relative;
+}
+
+.profile-dropdown {
+  position: absolute;
+  right: 0;
+  top: 2.8rem;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  width: 180px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+  z-index: 1000;
+}
+
+.dropdown-item {
+  background: transparent;
+  border: none;
+  text-align: left;
+  padding: 0.6rem 1rem;
+  font-size: 0.95rem;
+  color: var(--text);
+  cursor: pointer;
+  width: 100%;
+}
+
+.dropdown-item:hover {
+  background: var(--bg);
+  color: var(--accent);
+}
+
+.hidden {
+  display: none !important;
+}
+
+/* MODAL */
+.modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.45);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 2000;
+}
+
+.modal-content {
+  background: var(--card);
+  padding: 2rem;
+  border-radius: 12px;
+  width: 350px;
+  border: 1px solid var(--border);
+  text-align: center;
+}
+
+.modal-content h2 {
+  margin: 0 0 1rem;
+  font-size: 1.4rem;
+  color: var(--text);
+}
+
+.modal-actions {
+  margin-top: 1.5rem;
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.modal-button {
+  padding: 0.6rem 1rem;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  font-size: 0.95rem;
+}
+
+.modal-button.delete {
+  background: #c62828;
+  color: #fff;
+}
+
+.modal-button.delete:hover {
+  background: #e53935;
+}
+
+.modal-button:hover {
+  background: var(--bg);
+}
+
+/* MAIN CONTENT */
 main {
   width: 100%;
   max-width: 900px;
@@ -82,23 +175,4 @@ main p {
   margin: 0;
   color: var(--muted);
   font-size: 1rem;
-}
-
-/* Appointment card styling for later */
-.appointment {
-  margin-top: 1.25rem;
-  padding: 1.25rem;
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: 10px;
-}
-
-.appointment h2 {
-  margin: 0 0 0.5rem;
-  font-size: 1.05rem;
-}
-
-.appointment p {
-  margin: 0.25rem 0;
-  color: var(--muted);
 }

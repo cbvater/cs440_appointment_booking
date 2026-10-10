@@ -94,4 +94,21 @@ public class UserController {
         session.invalidate();
         return "redirect:/login";
     }
+
+    @GetMapping("/userSchedAppt")
+    public String userSchedAppt(HttpSession session) {
+        if (!"User".equals(session.getAttribute("role"))) {
+            return "redirect:/login";
+        }
+        return "userSchedAppt";
+    }
+
+    @GetMapping("/userApptHistory")
+    public String userApptHistory(HttpSession session) {
+        if (!"User".equals(session.getAttribute("role"))) {
+            return "redirect:/login";
+        }
+        return "userApptHistory";
+    }
+
 }

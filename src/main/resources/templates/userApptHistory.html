@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="stylesheet" href="/css/userHome.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>User Appointment History</title>
+</head>
+
+<body>
+
+<nav class="navbar">
+    <div class="nav-left">
+        <button class="nav-button" onclick="window.location='/userHome'">My Appts</button>
+        <button class="nav-button" onclick="window.location='/userSchedAppt'">Schedule Appts</button>
+        <button class="nav-button active" onclick="window.location='/userApptHistory'">Appt History</button>
+    </div>
+
+    <div class="nav-right">
+        <div class="profile-wrapper">
+            <button class="nav-button profile-button">Profile ▾</button>
+            <div class="profile-dropdown hidden">
+                <form action="/logout" method="post">
+                    <button type="submit" class="dropdown-item">Log Out</button>
+                </form>
+                <button class="dropdown-item delete">Delete Account</button>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<main>
+    <h1>Appointment History</h1>
+    <p>Your past appointments will appear here.</p>
+</main>
+
+<div id="deleteModal" class="modal hidden">
+    <div class="modal-content">
+        <h2>Confirm you wish to delete your account</h2>
+        <div class="modal-actions">
+            <button id="confirmDelete" class="modal-button delete">Yes, delete account</button>
+            <button id="cancelDelete" class="modal-button">No, take me back</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        const profileBtn = document.querySelector('.profile-button');
+        const dropdown = document.querySelector('.profile-dropdown');
+        const deleteBtn = document.querySelector('.dropdown-item.delete');
+        const modal = document.getElementById('deleteModal');
+        const cancelDelete = document.getElementById('cancelDelete');
+        const confirmDelete = document.getElementById('confirmDelete');
+
+        profileBtn.addEventListener('click', () => {
+            dropdown.classList.toggle('hidden');
+        });
+
+        document.addEventListener('click', (e) => {
+            const wrapper = document.querySelector('.profile-wrapper');
+            if (!wrapper.contains(e.target)) {
+                dropdown.classList.add('hidden');
+            }
+        });
+
+        deleteBtn.addEventListener('click', () => {
+            modal.classList.remove('hidden');
+        });
+
+        cancelDelete.addEventListener('click', () => {
+            modal.classList.add('hidden');
+        });
+
+        confirmDelete.addEventListener('click', () => {
+            window.location = '/deleteAccount';
+        });
+    });
+</script>
+
+</body>
+</html>

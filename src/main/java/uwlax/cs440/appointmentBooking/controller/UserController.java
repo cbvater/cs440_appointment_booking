@@ -54,6 +54,7 @@ public class UserController {
                               Model model) {
         Optional<User> user = userService.userLogin(username, password);
         if(user.isPresent()) {
+            session.setAttribute("user", user.get());
             session.setAttribute("userId", user.get().getUserId());
             session.setAttribute("role", user.get().getRole());
 
@@ -80,20 +81,17 @@ public class UserController {
         return "userHome";
     }
 
-
-    @GetMapping("/serviceProviderHome")
-    public String showProviderHome(HttpSession session) {
-        if (!"Service Provider".equals(session.getAttribute("role"))) {
-            return "redirect:/login";
-        }
-        return "serviceProviderHome";
-    }
-
     @GetMapping("/adminHome")
     public String showAdminHome(HttpSession session) {
         if (!"Admin".equals(session.getAttribute("role"))) {
             return "redirect:/login";
         }
         return "adminHome";
+    }
+
+    @PostMapping("/logout")
+    public String logout(HttpSession session) {
+        session.invalidate();
+        return "redirect:/login";
     }
 }

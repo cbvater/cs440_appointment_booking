@@ -49,4 +49,36 @@ public class ServiceProviderController {
     public String showRegistrationForm(){
         return "serviceProviderRegistration";
     }
+
+    @GetMapping("/serviceProviderHome")
+    public String providerHome(HttpSession session) {
+        if (session.getAttribute("user") == null) {
+            return "redirect:/login";
+        }
+        return "serviceProviderHome";
+    }
+
+    @GetMapping("/serviceProviderSchedAppt")
+    public String scheduleAppts(HttpSession session) {
+        if (session.getAttribute("user") == null) {
+            return "redirect:/login";
+        }
+        return "serviceProviderSchedAppt";
+    }
+
+    @GetMapping("/serviceProviderEditSlots")
+    public String editSlots(HttpSession session) {
+        if (session.getAttribute("user") == null) {
+            return "redirect:/login";
+        }
+        return "serviceProviderEditSlots";
+    }
+
+    @GetMapping("/serviceProviderApptHistory")
+    public String appointmentHistory(HttpSession session) {
+        if (session.getAttribute("user") == null) {
+            return "redirect:/login";
+        }
+        return "serviceProviderApptHistory";
+    }
 }

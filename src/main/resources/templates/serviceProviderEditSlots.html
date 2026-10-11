@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -32,9 +32,130 @@
 
 <main>
     <h1>Edit Available Appointment Slots</h1>
-    <p>Here you will manage your available time slots.</p>
+
+    <div class="add-slot-container">
+        <button class="add-slot-button" id="openAddModal">+ Add New Appointment Slot</button>
+    </div>
+
+    <div class="slot-list">
+
+        <div th:if="${#lists.isEmpty(slots)}" class="empty-message">
+            You haven’t created any appointment slots yet.
+            New slots you create will appear here.
+        </div>
+
+        <div th:each="slot : ${slots}" class="slot-card">
+
+            <div class="slot-info">
+                <h2 th:text="${slot.name}"></h2>
+                <p><strong>Time:</strong> <span th:text="${slot.time}"></span></p>
+                <p><strong>Category:</strong> <span th:text="${slot.category}"></span></p>
+                <p><strong>Booked:</strong> <span th:text="${slot.booked}"></span></p>
+                <p><strong>Location:</strong> <span th:text="${slot.location}"></span></p>
+                <p><strong>Cancelled:</strong> <span th:text="${slot.cancelled}"></span></p>
+            </div>
+
+            <div class="slot-actions">
+                <button class="edit-slot-button"
+                        th:attr="data-id=${slot.appointmentId},
+                                 data-name=${slot.name},
+                                 data-category=${slot.category},
+                                 data-time=${slot.time},
+                                 data-location=${slot.location}">
+                    Edit Appointment ▾
+                </button>
+
+                <div class="edit-dropdown hidden">
+                    <button class="dropdown-item edit-details">Edit Appointment Details</button>
+
+                    <!-- CANCEL / UNCANCEL BUTTONS -->
+                    <div th:if="${slot.cancelled}">
+                        <form th:action="@{'/serviceProviderUncancelSlot/' + ${slot.appointmentId}}" method="post">
+                            <button class="dropdown-item uncancel-slot" type="submit">Uncancel Appointment</button>
+                        </form>
+                    </div>
+
+                    <div th:unless="${slot.cancelled}">
+                        <button class="dropdown-item cancel-slot"
+                                th:attr="data-cancel-url=@{'/serviceProviderCancelSlot/' + ${slot.appointmentId}}">
+                            Cancel Appointment
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
 </main>
 
+<!-- ADD SLOT MODAL -->
+<div id="addSlotModal" class="modal hidden">
+    <div class="modal-content modal-form">
+        <h2>Create New Appointment Slot</h2>
+
+        <form action="/serviceProviderAddSlot" method="post">
+            <label class="modal-label" for="name">Appointment Name</label>
+            <input class="modal-input" type="text" name="name" id="name" required>
+
+            <label class="modal-label" for="category">Category</label>
+            <input class="modal-input" type="text" name="category" id="category" required>
+
+            <label class="modal-label" for="time">Date & Time</label>
+            <input class="modal-input" type="datetime-local" name="time" id="time" required>
+
+            <label class="modal-label" for="location">Location</label>
+            <input class="modal-input" type="text" name="location" id="location" required>
+
+            <div class="modal-actions">
+                <button type="submit" class="modal-button">Create Slot</button>
+                <button type="button" id="closeAddModal" class="modal-button delete">Cancel</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- EDIT SLOT MODAL -->
+<div id="editSlotModal" class="modal hidden">
+    <div class="modal-content modal-form">
+        <h2>Edit Appointment Slot</h2>
+
+        <form action="/serviceProviderEditSlot" method="post">
+            <input type="hidden" name="appointmentId" id="edit-id">
+
+            <label class="modal-label" for="edit-name">Appointment Name</label>
+            <input class="modal-input" type="text" name="name" id="edit-name" required>
+
+            <label class="modal-label" for="edit-category">Category</label>
+            <input class="modal-input" type="text" name="category" id="edit-category" required>
+
+            <label class="modal-label" for="edit-time">Date & Time</label>
+            <input class="modal-input" type="datetime-local" name="time" id="edit-time" required>
+
+            <label class="modal-label" for="edit-location">Location</label>
+            <input class="modal-input" type="text" name="location" id="edit-location" required>
+
+            <div class="modal-actions">
+                <button type="submit" class="modal-button">Save Changes</button>
+                <button type="button" id="closeEditModal" class="modal-button">Close</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- CANCEL CONFIRMATION MODAL -->
+<div id="cancelModal" class="modal hidden">
+    <div class="modal-content">
+        <h2>Cancel this appointment?</h2>
+        <div class="modal-actions">
+            <form id="cancelForm" method="post">
+                <button type="submit" class="modal-button delete">Yes, cancel it</button>
+            </form>
+            <button id="cancelCancel" class="modal-button">No, go back</button>
+        </div>
+    </div>
+</div>
+
+<!-- DELETE ACCOUNT MODAL -->
 <div id="deleteModal" class="modal hidden">
     <div class="modal-content">
         <h2>Confirm you wish to delete your account</h2>
@@ -47,35 +168,69 @@
 
 <script>
     document.addEventListener("DOMContentLoaded", () => {
+
+        /* PROFILE DROPDOWN */
         const profileBtn = document.querySelector('.profile-button');
         const dropdown = document.querySelector('.profile-dropdown');
-        const deleteBtn = document.querySelector('.dropdown-item.delete');
-        const modal = document.getElementById('deleteModal');
-        const cancelDelete = document.getElementById('cancelDelete');
-        const confirmDelete = document.getElementById('confirmDelete');
 
-        profileBtn.addEventListener('click', () => {
-            dropdown.classList.toggle('hidden');
-        });
+        profileBtn.addEventListener('click', () => dropdown.classList.toggle('hidden'));
 
         document.addEventListener('click', (e) => {
             const wrapper = document.querySelector('.profile-wrapper');
-            if (!wrapper.contains(e.target)) {
-                dropdown.classList.add('hidden');
-            }
+            if (!wrapper.contains(e.target)) dropdown.classList.add('hidden');
         });
 
-        deleteBtn.addEventListener('click', () => {
-            modal.classList.remove('hidden');
+        /* DELETE ACCOUNT MODAL */
+        const deleteBtn = document.querySelector('.dropdown-item.delete');
+        const deleteModal = document.getElementById('deleteModal');
+        const cancelDelete = document.getElementById('cancelDelete');
+        const confirmDelete = document.getElementById('confirmDelete');
+
+        deleteBtn.addEventListener('click', () => deleteModal.classList.remove('hidden'));
+        cancelDelete.addEventListener('click', () => deleteModal.classList.add('hidden'));
+        confirmDelete.addEventListener('click', () => window.location = '/deleteAccount');
+
+        /* ADD SLOT MODAL */
+        const addModal = document.getElementById('addSlotModal');
+        document.getElementById('openAddModal').addEventListener('click', () => addModal.classList.remove('hidden'));
+        document.getElementById('closeAddModal').addEventListener('click', () => addModal.classList.add('hidden'));
+
+        /* EDIT SLOT MODAL */
+        const editModal = document.getElementById('editSlotModal');
+
+        document.querySelectorAll('.edit-slot-button').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const menu = btn.nextElementSibling;
+                menu.classList.toggle('hidden');
+
+                menu.querySelector('.edit-details').addEventListener('click', () => {
+                    document.getElementById('edit-id').value = btn.getAttribute('data-id');
+                    document.getElementById('edit-name').value = btn.getAttribute('data-name');
+                    document.getElementById('edit-category').value = btn.getAttribute('data-category');
+                    document.getElementById('edit-time').value = btn.getAttribute('data-time');
+                    document.getElementById('edit-location').value = btn.getAttribute('data-location');
+
+                    editModal.classList.remove('hidden');
+                });
+            });
         });
 
-        cancelDelete.addEventListener('click', () => {
-            modal.classList.add('hidden');
+        document.getElementById('closeEditModal').addEventListener('click', () => editModal.classList.add('hidden'));
+
+        /* CANCEL CONFIRMATION MODAL */
+        const cancelModal = document.getElementById('cancelModal');
+        const cancelCancel = document.getElementById('cancelCancel');
+
+        document.querySelectorAll('.cancel-slot').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.preventDefault();
+                const url = btn.getAttribute('data-cancel-url');
+                document.getElementById('cancelForm').setAttribute('action', url);
+                cancelModal.classList.remove('hidden');
+            });
         });
 
-        confirmDelete.addEventListener('click', () => {
-            alert("Account deletion logic goes here.");
-        });
+        cancelCancel.addEventListener('click', () => cancelModal.classList.add('hidden'));
     });
 </script>
 

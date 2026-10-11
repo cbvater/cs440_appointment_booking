@@ -1,39 +1,9 @@
 package uwlax.cs440.appointmentBooking.model;
 
 import jakarta.persistence.*;
-
+import org.springframework.format.annotation.DateTimeFormat;
 import java.time.LocalDateTime;
 
-/**
- * MODEL LAYER: describes the data. One Appointment object = one row in the
- * "appointments" table.
- *
- * Used by: AppointmentRepository (saves and loads it), AppointmentService
- * (creates and checks it), and controllers (only passed along, never
- * changed directly).
- * Calls: nothing. It holds data and has no logic of its own.
- *
- * Covers both past/completed appointments and open slots a service
- * provider has made available, per the ER diagram. The "booked" flag
- * tells them apart: false = an open slot a customer can reserve,
- * true = already taken.
- *
- * What belongs here:
- *  - Fields that map to database columns, with JPA annotations (@Column, etc.)
- *  - A no-argument constructor (JPA requires it)
- *  - Getters and setters for each field
- *
- * What does NOT belong here:
- *  - Booking rules, conflict checks, or availability logic (service)
- *  - Database queries (repository)
- *  - Anything about web requests or pages (controller)
- *
- * Note: userId and serviceProviderId are stored as plain foreign-key ids
- * (matching User.userId, and the future ServiceProvider.serviceProviderId
- * from the ER diagram's separate Service Provider table) rather than
- * @ManyToOne relationships, since the ServiceProvider entity hasn't been
- * built yet. Once it exists, these can be converted to real JPA relations.
- */
 @Entity
 @Table(name = "appointments")
 public class Appointment {
@@ -48,6 +18,7 @@ public class Appointment {
     @Column(nullable = false)
     private long serviceProviderId;
 
+    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
     @Column(nullable = false)
     private LocalDateTime time;
 
@@ -63,7 +34,15 @@ public class Appointment {
     @Column(nullable = false)
     private String location;
 
+    @Column(nullable = false)
+    private boolean cancelled;
+
     public Appointment() {}
+
+    // ⭐ REQUIRED FOR EDITING TO WORK
+    public void setAppointmentId(long appointmentId) {
+        this.appointmentId = appointmentId;
+    }
 
     public long getAppointmentId() {
         return this.appointmentId;
@@ -116,5 +95,12 @@ public class Appointment {
     }
     public void setLocation(String location) {
         this.location = location;
+    }
+
+    public boolean isCancelled() {
+        return this.cancelled;
+    }
+    public void setCancelled(boolean cancelled) {
+        this.cancelled = cancelled;
     }
 }

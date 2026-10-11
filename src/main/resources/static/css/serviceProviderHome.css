@@ -20,10 +20,7 @@ body {
   font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
 }
 
-/* -----------------------------------------
-   NAVIGATION BAR
------------------------------------------ */
-
+/* NAVBAR */
 .navbar {
   width: 100%;
   display: flex;
@@ -68,10 +65,7 @@ body {
   outline-offset: 1px;
 }
 
-/* -----------------------------------------
-   PROFILE DROPDOWN
------------------------------------------ */
-
+/* PROFILE DROPDOWN */
 .profile-wrapper {
   position: relative;
 }
@@ -98,7 +92,7 @@ body {
   font-size: 0.95rem;
   color: var(--text);
   cursor: pointer;
-  width: 100%; /* FIX: makes Log Out full width */
+  width: 100%;
 }
 
 .dropdown-item:hover {
@@ -106,18 +100,11 @@ body {
   color: var(--accent);
 }
 
-/* -----------------------------------------
-   HIDDEN UTILITY
------------------------------------------ */
-
 .hidden {
   display: none !important;
 }
 
-/* -----------------------------------------
-   MODAL
------------------------------------------ */
-
+/* MODAL */
 .modal {
   position: fixed;
   inset: 0;
@@ -132,7 +119,7 @@ body {
   background: var(--card);
   padding: 2rem;
   border-radius: 12px;
-  width: 350px;
+  width: 400px;
   border: 1px solid var(--border);
   text-align: center;
 }
@@ -171,10 +158,28 @@ body {
   background: var(--bg);
 }
 
-/* -----------------------------------------
-   MAIN CONTENT
------------------------------------------ */
+/* MODAL FORM INPUTS */
+.modal-form {
+  text-align: left;
+}
 
+.modal-label {
+  display: block;
+  margin-top: 1rem;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.modal-input {
+  width: 100%;
+  padding: 0.6rem;
+  margin-top: 0.3rem;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  font-size: 0.95rem;
+}
+
+/* MAIN CONTENT */
 main {
   width: 100%;
   max-width: 900px;
@@ -193,24 +198,92 @@ main p {
   font-size: 1rem;
 }
 
-/* -----------------------------------------
-   APPOINTMENT CARD
------------------------------------------ */
+/* ADD SLOT BUTTON */
+.add-slot-container {
+  text-align: center;
+  margin: 2rem 0;
+}
 
-.appointment {
-  margin-top: 1.25rem;
-  padding: 1.25rem;
+.add-slot-button {
+  padding: 0.75rem 1.5rem;
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.add-slot-button:hover {
+  background: var(--accent-dark);
+}
+
+/* APPOINTMENT SLOT LIST */
+.slot-list {
+  margin-top: 1rem;
+}
+
+.slot-card {
   background: var(--card);
   border: 1px solid var(--border);
   border-radius: 10px;
+  padding: 1.25rem;
+  margin-bottom: 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
 }
 
-.appointment h2 {
+.slot-info h2 {
   margin: 0 0 0.5rem;
-  font-size: 1.05rem;
+  font-size: 1.2rem;
 }
 
-.appointment p {
+.slot-info p {
   margin: 0.25rem 0;
   color: var(--muted);
+}
+
+.slot-actions {
+  position: relative;
+}
+
+.edit-slot-button {
+  padding: 0.6rem 1rem;
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.edit-slot-button:hover {
+  background: var(--accent-dark);
+}
+
+.edit-dropdown {
+  position: absolute;
+  right: 0;
+  top: 2.8rem;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  width: 200px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+  z-index: 1000;
+}
+
+/* EMPTY STATE MESSAGE */
+.empty-message {
+  margin-top: 2rem;
+  padding: 1.5rem;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  text-align: center;
+  color: var(--muted);
+  font-size: 1.05rem;
 }

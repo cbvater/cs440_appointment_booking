@@ -3,20 +3,30 @@ package uwlax.cs440.appointmentBooking.controller;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
+
+import uwlax.cs440.appointmentBooking.model.Appointment;
 import uwlax.cs440.appointmentBooking.model.ServiceProvider;
+import uwlax.cs440.appointmentBooking.service.AppointmentService;
 import uwlax.cs440.appointmentBooking.service.ServiceProviderService;
+
+import java.util.List;
 
 @Controller
 public class ServiceProviderController {
 
     private final ServiceProviderService serviceProviderService;
-    public ServiceProviderController(ServiceProviderService serviceProviderService){
+    private final AppointmentService appointmentService;
+
+    public ServiceProviderController(ServiceProviderService serviceProviderService,
+                                     AppointmentService appointmentService) {
         this.serviceProviderService = serviceProviderService;
+        this.appointmentService = appointmentService;
     }
 
+    // ------------------------------------------------------------
+    // REGISTRATION
+    // ------------------------------------------------------------
 
     @PostMapping("/register/provider")
     public String handleRegistration(@RequestParam String username,
@@ -29,10 +39,17 @@ public class ServiceProviderController {
                                      HttpSession session,
                                      Model model) {
         try {
-            ServiceProvider provider = serviceProviderService.register(firstName, lastName, password, username, qualification, company, serviceType);
+            ServiceProvider provider = serviceProviderService.register(
+                    firstName, lastName, password, username, qualification, company, serviceType
+            );
 
+            // Store provider user object
             session.setAttribute("user", provider.getUser());
-        } catch (IllegalArgumentException e){
+
+            // ⭐ CRITICAL FIX: store providerId for appointment lookup
+            session.setAttribute("userId", provider.getUser().getUserId());
+
+        } catch (IllegalArgumentException e) {
             model.addAttribute("error", e.getMessage());
             model.addAttribute("company", company);
             model.addAttribute("firstName", firstName);
@@ -46,9 +63,13 @@ public class ServiceProviderController {
     }
 
     @GetMapping("/register/provider")
-    public String showRegistrationForm(){
+    public String showRegistrationForm() {
         return "serviceProviderRegistration";
     }
+
+    // ------------------------------------------------------------
+    // PAGE ROUTES
+    // ------------------------------------------------------------
 
     @GetMapping("/serviceProviderHome")
     public String providerHome(HttpSession session) {
@@ -66,14 +87,6 @@ public class ServiceProviderController {
         return "serviceProviderSchedAppt";
     }
 
-    @GetMapping("/serviceProviderEditSlots")
-    public String editSlots(HttpSession session) {
-        if (session.getAttribute("user") == null) {
-            return "redirect:/login";
-        }
-        return "serviceProviderEditSlots";
-    }
-
     @GetMapping("/serviceProviderApptHistory")
     public String appointmentHistory(HttpSession session) {
         if (session.getAttribute("user") == null) {
@@ -81,4 +94,76 @@ public class ServiceProviderController {
         }
         return "serviceProviderApptHistory";
     }
+
+    // ------------------------------------------------------------
+    // EDIT SLOTS PAGE (with appointment list)
+    // ------------------------------------------------------------
+
+    @GetMapping("/serviceProviderEditSlots")
+    public String editSlots(HttpSession session, Model model) {
+        if (session.getAttribute("user") == null) {
+            return "redirect:/login";
+        }
+        long providerId = (long) session.getAttribute("userId");
+
+        List<Appointment> slots = appointmentService.getProviderSlots(providerId);
+        model.addAttribute("slots", slots);
+
+        return "serviceProviderEditSlots";
+    }
+
+    // ------------------------------------------------------------
+    // ADD NEW SLOT (modal POST)
+    // ------------------------------------------------------------
+
+    @PostMapping("/serviceProviderAddSlot")
+    public String addSlot(@ModelAttribute Appointment appt, HttpSession session) {
+        if (session.getAttribute("user") == null) {
+            return "redirect:/login";
+        }
+
+        long providerId = (long) session.getAttribute("userId");
+        appointmentService.createSlot(appt, providerId);
+
+        return "redirect:/serviceProviderEditSlots";
+    }
+
+    // ------------------------------------------------------------
+    // EDIT EXISTING SLOT (modal POST)
+    // ------------------------------------------------------------
+
+    @PostMapping("/serviceProviderEditSlot")
+    public String editSlot(@ModelAttribute Appointment appt, HttpSession session) {
+        if (session.getAttribute("user") == null) {
+            return "redirect:/login";
+        }
+
+        appointmentService.editSlot(appt);
+        return "redirect:/serviceProviderEditSlots";
+    }
+
+    // ------------------------------------------------------------
+    // CANCEL SLOT
+    // ------------------------------------------------------------
+
+    @PostMapping("/serviceProviderCancelSlot/{id}")
+    public String cancelSlot(@PathVariable long id, HttpSession session) {
+        if (session.getAttribute("user") == null) {
+            return "redirect:/login";
+        }
+
+        appointmentService.cancelSlot(id);
+        return "redirect:/serviceProviderEditSlots";
+    }
+
+    @PostMapping("/serviceProviderUncancelSlot/{id}")
+    public String uncancelSlot(@PathVariable long id, HttpSession session) {
+        if (session.getAttribute("user") == null) {
+            return "redirect:/login";
+        }
+
+        appointmentService.uncancelSlot(id);
+        return "redirect:/serviceProviderEditSlots";
+    }
+
 }

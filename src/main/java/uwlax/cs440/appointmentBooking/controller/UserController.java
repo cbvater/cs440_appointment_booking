@@ -38,9 +38,34 @@ import java.util.Optional;
 public class UserController {
 
     private final UserService userService;
+
     public UserController(UserService userService){
         this.userService = userService;
     }
+
+    @GetMapping("/register/user")
+    public String showUserRegistration() {
+        return "userRegistration";
+    }
+
+    @PostMapping("/register/user")
+    public String registerUser(@RequestParam String firstName,
+                               @RequestParam String lastName,
+                               @RequestParam String username,
+                               @RequestParam String password,
+                               Model model) {
+        try {
+            userService.registerUser(firstName, lastName, username, password);
+        } catch (IllegalArgumentException ex) {
+            model.addAttribute("error", ex.getMessage());
+            model.addAttribute("firstName", firstName);
+            model.addAttribute("lastName", lastName);
+            model.addAttribute("username", username);
+            return "userRegistration";
+        }
+    return "redirect:/login";
+    }
+
 
     @GetMapping("/login")
     public String showLoginPage() {

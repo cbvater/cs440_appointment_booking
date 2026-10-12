@@ -28,6 +28,10 @@ import java.util.Optional;
  */
 @Service
 public class UserService {
+
+    // Password must be more than 7 characters
+    private static final int MIN_PASSWORD_LENGTH = 7;
+
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
@@ -44,6 +48,35 @@ public class UserService {
             return found;
         }
         return Optional.empty();
+    }
+
+    /**
+     * Registers a new customer account.
+     *
+     * @throws IllegalArgumentException if the password is too short or the
+     *                                  username is already taken; the message
+     *                                  is written to be shown to the user as-is.
+     */
+    public User registerUser(String firstName, String lastName, String username, String password) {
+        if (password == null || password.length() <= MIN_PASSWORD_LENGTH) {
+            throw new IllegalArgumentException("Password must be more than 7 characters.");
+        }
+        if (username == null || username.isBlank()) {
+            throw new IllegalArgumentException("Username is required.");
+        }
+        if (userRepository.existsByUsername(username)) {
+            throw new IllegalArgumentException("That username is already taken.");
+        }
+
+        User user = new User();
+        user.setFirstName(firstName);
+        user.setLastName(lastName);
+        user.setUsername(username);
+        user.setPasswordHash(passwordEncoder.encode(password));
+        user.setRole("USER");
+        user.setActive(true);
+
+        return userRepository.save(user);
     }
 
 

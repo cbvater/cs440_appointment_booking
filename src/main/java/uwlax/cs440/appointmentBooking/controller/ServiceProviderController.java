@@ -129,7 +129,7 @@ public class ServiceProviderController {
     }
 
     // ------------------------------------------------------------
-    // EDIT EXISTING SLOT (modal POST)
+    // EDIT EXISTING SLOT (model POST)
     // ------------------------------------------------------------
 
     @PostMapping("/serviceProviderEditSlot")
@@ -155,6 +155,10 @@ public class ServiceProviderController {
         appointmentService.cancelSlot(id);
         return "redirect:/serviceProviderEditSlots";
     }
+
+    // ------------------------------------------------------------
+    // UNCANCEL SLOT
+    // ------------------------------------------------------------
 
     @PostMapping("/serviceProviderUncancelSlot/{id}")
     public String uncancelSlot(@PathVariable long id, HttpSession session) {

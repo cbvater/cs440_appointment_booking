@@ -4,9 +4,11 @@ import org.springframework.ui.Model;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import uwlax.cs440.appointmentBooking.model.User;
+import uwlax.cs440.appointmentBooking.service.AppointmentService;
 import uwlax.cs440.appointmentBooking.service.UserService;
 
 import java.util.Optional;
@@ -38,9 +40,11 @@ import java.util.Optional;
 public class UserController {
 
     private final UserService userService;
+    private final AppointmentService appointmentService;
 
-    public UserController(UserService userService){
+    public UserController(UserService userService, AppointmentService appointmentService){
         this.userService = userService;
+        this.appointmentService = appointmentService;
     }
 
     @GetMapping("/register/user")
@@ -63,7 +67,7 @@ public class UserController {
             model.addAttribute("username", username);
             return "userRegistration";
         }
-    return "redirect:/login";
+        return "redirect:/login";
     }
 
 
@@ -74,9 +78,9 @@ public class UserController {
 
     @PostMapping("/login")
     public String handleUserLogin(@RequestParam String username,
-                              @RequestParam String password,
-                              HttpSession session,
-                              Model model) {
+                                  @RequestParam String password,
+                                  HttpSession session,
+                                  Model model) {
         Optional<User> user = userService.userLogin(username, password);
         if(user.isPresent()) {
             session.setAttribute("user", user.get());
@@ -121,11 +125,42 @@ public class UserController {
     }
 
     @GetMapping("/userSchedAppt")
-    public String userSchedAppt(HttpSession session) {
+    public String userSchedAppt(@RequestParam(required = false) String category,
+                                HttpSession session,
+                                Model model) {
         if (!"User".equals(session.getAttribute("role"))) {
             return "redirect:/login";
         }
+
+        model.addAttribute("slots", appointmentService.searchOpenSlots(category));
+        model.addAttribute("selectedCategory", category);
         return "userSchedAppt";
+    }
+
+    @PostMapping("/userBookSlot/{id}")
+    public String bookSlot(@PathVariable long id,
+                           @RequestParam(required = false) String category,
+                           HttpSession session,
+                           Model model) {
+        if (!"User".equals(session.getAttribute("role"))) {
+            return "redirect:/login";
+        }
+        long userId = (long) session.getAttribute("userId");
+
+        try {
+            appointmentService.bookSlot(id, userId);
+        } catch (IllegalStateException ex) {
+            model.addAttribute("error", ex.getMessage());
+            model.addAttribute("selectedCategory", category);
+            model.addAttribute("slots", appointmentService.searchOpenSlots(category));
+            return "userSchedAppt";
+        }
+
+        String redirect = "redirect:/userSchedAppt?booked=1";
+        if (category != null && !category.isBlank()) {
+            redirect += "&category=" + category;
+        }
+        return redirect;
     }
 
     @GetMapping("/userApptHistory")

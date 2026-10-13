@@ -176,3 +176,107 @@ main p {
   color: var(--muted);
   font-size: 1rem;
 }
+
+
+/* FEEDBACK MESSAGES */
+.error {
+    margin: 1rem 0 0;
+    padding: 0.6rem 0.75rem;
+    border: 1px solid #b3261e;
+    border-radius: 6px;
+    background: #fbeceb;
+    color: #8c1d18;
+    font-size: 0.9rem;
+}
+
+.success {
+    margin: 1rem 0 0;
+    padding: 0.6rem 0.75rem;
+    border: 1px solid var(--accent);
+    border-radius: 6px;
+    background: #e6f2f0;
+    color: var(--accent-dark);
+    font-size: 0.9rem;
+}
+
+/* SEARCH / FILTER BAR */
+.filter-bar {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin: 1.5rem 0 0.5rem;
+}
+
+.filter-bar label {
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+.filter-bar select {
+    padding: 0.5rem 0.75rem;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    font-size: 0.95rem;
+    background: var(--card);
+    color: var(--text);
+}
+
+.filter-bar select:focus-visible {
+    outline: 3px solid var(--accent);
+    outline-offset: 1px;
+}
+
+/* APPOINTMENT SLOT LIST (shared with the provider's edit-slots page) */
+.slot-list {
+    margin-top: 1rem;
+}
+
+.slot-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1.25rem;
+    margin-bottom: 1rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+
+.slot-info h2 {
+    margin: 0 0 0.5rem;
+    font-size: 1.2rem;
+}
+
+.slot-info p {
+    margin: 0.25rem 0;
+    color: var(--muted);
+}
+
+.slot-actions {
+    position: relative;
+}
+
+.edit-slot-button {
+    padding: 0.6rem 1rem;
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.edit-slot-button:hover {
+    background: var(--accent-dark);
+}
+
+/* EMPTY STATE MESSAGE */
+.empty-message {
+    margin-top: 2rem;
+    padding: 1.5rem;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    text-align: center;
+    color: var(--muted);
+    font-size: 1.05rem;
+}

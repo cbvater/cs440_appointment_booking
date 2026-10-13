@@ -4,6 +4,8 @@ import org.springframework.stereotype.Service;
 import uwlax.cs440.appointmentBooking.model.Appointment;
 import uwlax.cs440.appointmentBooking.repository.AppointmentRepository;
 
+import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
@@ -31,6 +33,24 @@ public class AppointmentService {
 
     public List<Appointment> getCustomerBookings(long userId) {
         return repo.findByUserIdAndBookedTrue(userId);
+    }
+
+    /**
+     * Open (bookable) slots for the "Schedule Appts" search tab, optionally
+     * narrowed to one category. Cancelled slots and slots already in the past
+     * never show up here. Soonest slot first.
+     */
+    public List<Appointment> searchOpenSlots(String category) {
+        List<Appointment> open = (category == null || category.isBlank())
+                ? repo.findByBookedFalse()
+                : repo.findByCategoryIgnoreCaseAndBookedFalse(category);
+
+        LocalDateTime now = LocalDateTime.now();
+        return open.stream()
+                .filter(a -> !a.isCancelled())
+                .filter(a -> a.getTime().isAfter(now))
+                .sorted(Comparator.comparing(Appointment::getTime))
+                .toList();
     }
 
     // ------------------------------------------------------------
@@ -93,13 +113,27 @@ public class AppointmentService {
         return repo.save(appt);
     }
 
-    /** Customer books a slot */
+    /**
+     * Customer books a slot.
+     *
+     * @throws IllegalStateException if the slot no longer exists, was just
+     *                                taken by someone else, or overlaps a
+     *                                time the user already has booked; the
+     *                                message is safe to show to the user.
+     */
     public Appointment bookSlot(long appointmentId, long userId) {
         Appointment appt = getById(appointmentId);
-        if (appt == null) return null;
-
+        if (appt == null) {
+            throw new IllegalStateException("That appointment no longer exists.");
+        }
         if (appt.isBooked() || appt.isCancelled()) {
-            throw new IllegalStateException("Slot is unavailable.");
+            throw new IllegalStateException("Sorry, that slot was just taken. Please pick another.");
+        }
+
+        boolean hasConflict = repo.findByUserIdAndBookedTrue(userId).stream()
+                .anyMatch(existing -> existing.getTime().equals(appt.getTime()));
+        if (hasConflict) {
+            throw new IllegalStateException("You already have an appointment booked at that time.");
         }
 
         appt.setBooked(true);

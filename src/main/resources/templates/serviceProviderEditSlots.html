@@ -48,7 +48,16 @@
 
             <div class="slot-info">
                 <h2 th:text="${slot.name}"></h2>
-                <p><strong>Time:</strong> <span th:text="${slot.time}"></span></p>
+                <p>
+                    <strong>Date:</strong>
+                    <span th:text="${#temporals.format(slot.time, 'MM/dd/yyyy')}"></span>
+                </p>
+                <p>
+                    <strong>Time:</strong>
+                    <span th:text="${#temporals.format(slot.time, 'h:mm a')}"></span>
+                    -
+                    <span th:text="${#temporals.format(slot.time.plusMinutes(slot.durationMinutes), 'h:mm a')}"></span>
+                </p>
                 <p><strong>Category:</strong> <span th:text="${slot.category}"></span></p>
                 <p><strong>Booked:</strong> <span th:text="${slot.booked}"></span></p>
                 <p><strong>Location:</strong> <span th:text="${slot.location}"></span></p>
@@ -58,10 +67,11 @@
             <div class="slot-actions">
                 <button class="edit-slot-button"
                         th:attr="data-id=${slot.appointmentId},
-                                 data-name=${slot.name},
-                                 data-category=${slot.category},
-                                 data-time=${slot.time},
-                                 data-location=${slot.location}">
+                        data-name=${slot.name},
+                        data-category=${slot.category},
+                        data-time=${slot.time},
+                        data-location=${slot.location},
+                        data-duration=${slot.durationMinutes}">
                     Edit Appointment ▾
                 </button>
 
@@ -98,10 +108,26 @@
             <input class="modal-input" type="text" name="name" id="name" required>
 
             <label class="modal-label" for="category">Category</label>
-            <input class="modal-input" type="text" name="category" id="category" required>
+            <select class="modal-input" name="category" id="category" required>
+                <option value="">Select a category</option>
+                <option value="Beauty">Beauty</option>
+                <option value="Fitness">Fitness</option>
+                <option value="Medical">Medical</option>
+            </select>
 
             <label class="modal-label" for="time">Date & Time</label>
             <input class="modal-input" type="datetime-local" name="time" id="time" required>
+
+            <label class="modal-label">Duration</label>
+            <div class="duration-row">
+                <label>Hours</label>
+                <input class="modal-input" type="number" id="durationHours" name="durationHours" min="0" max="23" value="1" required>
+
+                <label>Minutes</label>
+                <input class="modal-input" type="number" id="durationMins" name="durationMins" min="0" max="59" value="0" required>
+
+                <input type="hidden" name="durationMinutes" id="durationMinutes">
+            </div>
 
             <label class="modal-label" for="location">Location</label>
             <input class="modal-input" type="text" name="location" id="location" required>
@@ -126,10 +152,25 @@
             <input class="modal-input" type="text" name="name" id="edit-name" required>
 
             <label class="modal-label" for="edit-category">Category</label>
-            <input class="modal-input" type="text" name="category" id="edit-category" required>
+            <select class="modal-input" name="category" id="edit-category" required>
+                <option value="Beauty">Beauty</option>
+                <option value="Fitness">Fitness</option>
+                <option value="Medical">Medical</option>
+            </select>
 
             <label class="modal-label" for="edit-time">Date & Time</label>
             <input class="modal-input" type="datetime-local" name="time" id="edit-time" required>
+
+            <label class="modal-label">Duration</label>
+            <div class="duration-row">
+                <label>Hours</label>
+                <input class="modal-input" type="number" name="durationHours" id="edit-duration-hours" min="0" max="23" required>
+
+                <label>Minutes</label>
+                <input class="modal-input" type="number" id="edit-duration-minutes" min="0" max="59" required>
+
+                <input type="hidden" name="durationMinutes" id="edit-duration-total">
+            </div>
 
             <label class="modal-label" for="edit-location">Location</label>
             <input class="modal-input" type="text" name="location" id="edit-location" required>
@@ -204,11 +245,30 @@
                 menu.classList.toggle('hidden');
 
                 menu.querySelector('.edit-details').addEventListener('click', () => {
-                    document.getElementById('edit-id').value = btn.getAttribute('data-id');
-                    document.getElementById('edit-name').value = btn.getAttribute('data-name');
-                    document.getElementById('edit-category').value = btn.getAttribute('data-category');
-                    document.getElementById('edit-time').value = btn.getAttribute('data-time');
-                    document.getElementById('edit-location').value = btn.getAttribute('data-location');
+
+                    document.getElementById('edit-id').value =
+                        btn.getAttribute('data-id');
+
+                    document.getElementById('edit-name').value =
+                        btn.getAttribute('data-name');
+
+                    document.getElementById('edit-category').value =
+                        btn.getAttribute('data-category');
+
+                    document.getElementById('edit-time').value =
+                        btn.getAttribute('data-time');
+
+                    document.getElementById('edit-location').value =
+                        btn.getAttribute('data-location');
+
+                    const duration =
+                        parseInt(btn.getAttribute('data-duration'));
+
+                    document.getElementById('edit-duration-hours').value =
+                     Math.floor(duration / 60);
+
+                    document.getElementById('edit-duration-minutes').value =
+                        duration % 60;
 
                     editModal.classList.remove('hidden');
                 });
@@ -231,6 +291,22 @@
         });
 
         cancelCancel.addEventListener('click', () => cancelModal.classList.add('hidden'));
+
+        /* CREATE SLOT DURATION CALCULATION */
+        const addForm = document.querySelector('#addSlotModal form');
+        addForm.addEventListener('submit', () => {
+            const hours = parseInt(document.getElementById('durationHours').value) || 0;
+            const minutes = parseInt(document.getElementById('durationMins').value) || 0;
+            document.getElementById('durationMinutes').value = (hours * 60) + minutes;
+        });
+
+        /* EDIT SLOT DURATION CALCULATION */
+        const editForm = document.querySelector('#editSlotModal form');
+        editForm.addEventListener('submit', () => {
+        const hours = parseInt(document.getElementById('edit-duration-hours').value) || 0;
+        const minutes = parseInt(document.getElementById('edit-duration-minutes').value) || 0;
+        document.getElementById('edit-duration-total').value = (hours * 60) + minutes;
+        });
     });
 </script>
 

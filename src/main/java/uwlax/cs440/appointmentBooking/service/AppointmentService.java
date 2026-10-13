@@ -118,6 +118,13 @@ public class AppointmentService {
 
     /** Provider creates a new open slot */
     public Appointment createSlot(Appointment appt, long providerId) {
+
+        String category = appt.getCategory();
+
+        if (!category.equals("Beauty")  && !category.equals("Fitness")  && !category.equals("Medical")) {
+            throw new IllegalArgumentException("Invalid category");
+        }
+
         appt.setServiceProviderId(providerId);
         appt.setBooked(false);
         appt.setCancelled(false);
@@ -130,10 +137,17 @@ public class AppointmentService {
         Appointment existing = getById(updated.getAppointmentId());
         if (existing == null) return null;
 
+        String category = updated.getCategory();
+
+        if (!category.equals("Beauty") && !category.equals("Fitness") && !category.equals("Medical")) {
+            throw new IllegalArgumentException("Invalid category");
+        }
+
         // Only update editable fields
         existing.setName(updated.getName());
         existing.setCategory(updated.getCategory());
         existing.setTime(updated.getTime());
+        existing.setDurationMinutes(updated.getDurationMinutes());
         existing.setLocation(updated.getLocation());
 
         return repo.save(existing);

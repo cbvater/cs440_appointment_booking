@@ -169,5 +169,4 @@ public class ServiceProviderController {
         appointmentService.uncancelSlot(id);
         return "redirect:/serviceProviderEditSlots";
     }
-
 }

@@ -22,6 +22,9 @@ public class Appointment {
     @Column(nullable = false)
     private LocalDateTime time;
 
+    @Column(nullable=false)
+    private int durationMinutes;
+
     @Column(nullable = false)
     private String category;
 
@@ -61,12 +64,13 @@ public class Appointment {
         this.serviceProviderId = serviceProviderId;
     }
 
-    public LocalDateTime getTime() {
-        return this.time;
-    }
+    public LocalDateTime getTime() { return this.time; }
     public void setTime(LocalDateTime time) {
         this.time = time;
     }
+
+    public int getDurationMinutes() { return durationMinutes; }
+    public void setDurationMinutes(int durationMinutes) { this.durationMinutes = durationMinutes; }
 
     public String getCategory() {
         return this.category;

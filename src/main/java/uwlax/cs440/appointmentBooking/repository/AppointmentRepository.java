@@ -25,6 +25,10 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long> 
     // Open slots in a given category, e.g. for filtering a browse page
     List<Appointment> findByCategoryAndBookedFalse(String category);
 
+    // Same as above, but tolerant of how a provider typed the category
+    // (e.g. "medical" vs "Medical") when the user searches by it
+    List<Appointment> findByCategoryIgnoreCaseAndBookedFalse(String category);
+
     // ⭐ NEW: Provider's schedule sorted chronologically
     List<Appointment> findByServiceProviderIdOrderByTimeAsc(long serviceProviderId);
 }

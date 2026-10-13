@@ -3,12 +3,22 @@ package uwlax.cs440.appointmentBooking.controller;
 import org.springframework.ui.Model;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.util.UriComponentsBuilder;
+import uwlax.cs440.appointmentBooking.model.Appointment;
+import uwlax.cs440.appointmentBooking.model.ServiceProvider;
 import uwlax.cs440.appointmentBooking.model.User;
+import uwlax.cs440.appointmentBooking.service.AppointmentService;
 import uwlax.cs440.appointmentBooking.service.UserService;
 
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -38,9 +48,11 @@ import java.util.Optional;
 public class UserController {
 
     private final UserService userService;
+    private final AppointmentService appointmentService;
 
-    public UserController(UserService userService){
+    public UserController(UserService userService, AppointmentService appointmentService){
         this.userService = userService;
+        this.appointmentService = appointmentService;
     }
 
     @GetMapping("/register/user")
@@ -63,7 +75,7 @@ public class UserController {
             model.addAttribute("username", username);
             return "userRegistration";
         }
-    return "redirect:/login";
+        return "redirect:/login";
     }
 
 
@@ -74,9 +86,9 @@ public class UserController {
 
     @PostMapping("/login")
     public String handleUserLogin(@RequestParam String username,
-                              @RequestParam String password,
-                              HttpSession session,
-                              Model model) {
+                                  @RequestParam String password,
+                                  HttpSession session,
+                                  Model model) {
         Optional<User> user = userService.userLogin(username, password);
         if(user.isPresent()) {
             session.setAttribute("user", user.get());
@@ -121,11 +133,77 @@ public class UserController {
     }
 
     @GetMapping("/userSchedAppt")
-    public String userSchedAppt(HttpSession session) {
+    public String userSchedAppt(@RequestParam(required = false) String category,
+                                @RequestParam(required = false) String providerName,
+                                @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+                                LocalDate date,
+                                @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.TIME)
+                                LocalTime startTime,
+                                @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.TIME)
+                                LocalTime endTime,
+                                HttpSession session,
+                                Model model) {
         if (!"User".equals(session.getAttribute("role"))) {
             return "redirect:/login";
         }
+
+        addSearchResults(model, category, providerName, date, startTime, endTime);
         return "userSchedAppt";
+    }
+
+    @PostMapping("/userBookSlot/{id}")
+    public String bookSlot(@PathVariable long id,
+                           @RequestParam(required = false) String category,
+                           @RequestParam(required = false) String providerName,
+                           @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+                           LocalDate date,
+                           @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.TIME)
+                           LocalTime startTime,
+                           @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.TIME)
+                           LocalTime endTime,
+                           HttpSession session,
+                           Model model) {
+        if (!"User".equals(session.getAttribute("role"))) {
+            return "redirect:/login";
+        }
+        long userId = (long) session.getAttribute("userId");
+
+        try {
+            appointmentService.bookSlot(id, userId);
+        } catch (IllegalStateException ex) {
+            model.addAttribute("error", ex.getMessage());
+            addSearchResults(model, category, providerName, date, startTime, endTime);
+            return "userSchedAppt";
+        }
+
+        UriComponentsBuilder redirect = UriComponentsBuilder.fromPath("/userSchedAppt")
+                .queryParam("booked", "1");
+        addQueryParam(redirect, "category", category);
+        addQueryParam(redirect, "providerName", providerName);
+        addQueryParam(redirect, "date", date);
+        addQueryParam(redirect, "startTime", startTime);
+        addQueryParam(redirect, "endTime", endTime);
+        return "redirect:" + redirect.toUriString();
+    }
+
+    private void addSearchResults(Model model, String category, String providerName,
+                                  LocalDate date, LocalTime startTime, LocalTime endTime) {
+        List<Appointment> slots = appointmentService.searchOpenSlots(
+                category, providerName, date, startTime, endTime);
+        Map<Long, ServiceProvider> providerProfiles = appointmentService.getProviderProfiles(slots);
+        model.addAttribute("slots", slots);
+        model.addAttribute("providerProfiles", providerProfiles);
+        model.addAttribute("selectedCategory", category);
+        model.addAttribute("providerName", providerName);
+        model.addAttribute("selectedDate", date);
+        model.addAttribute("startTime", startTime);
+        model.addAttribute("endTime", endTime);
+    }
+
+    private void addQueryParam(UriComponentsBuilder builder, String name, Object value) {
+        if (value != null && !value.toString().isBlank()) {
+            builder.queryParam(name, value);
+        }
     }
 
     @GetMapping("/userApptHistory")

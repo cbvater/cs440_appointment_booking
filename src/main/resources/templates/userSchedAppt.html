@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <link rel="stylesheet" href="/css/userHome.css">
     <meta charset="UTF-8">
@@ -31,9 +31,103 @@
 
 <main>
     <h1>Schedule an Appointment</h1>
-    <p>Appointment scheduling UI will go here.</p>
+    <p>Search open appointment slots and book the one that works for you.</p>
+
+    <p class="success" th:if="${param.booked}">Your appointment is booked! You can find it under My Appts.</p>
+    <p class="error" th:if="${error}" th:text="${error}"></p>
+
+    <form class="filter-bar" method="get" action="/userSchedAppt">
+        <div class="filter-field">
+            <label for="category">Category</label>
+            <select name="category" id="category">
+            <option value="" th:selected="${selectedCategory == null or selectedCategory == ''}">All categories</option>
+            <option value="Medical" th:selected="${selectedCategory == 'Medical'}">Medical</option>
+            <option value="Beauty" th:selected="${selectedCategory == 'Beauty'}">Beauty</option>
+            <option value="Fitness" th:selected="${selectedCategory == 'Fitness'}">Fitness</option>
+            </select>
+        </div>
+        <div class="filter-field">
+            <label for="providerName">Provider name</label>
+            <input type="search" id="providerName" name="providerName"
+                   placeholder="Search by name" th:value="${providerName}">
+        </div>
+        <div class="filter-field">
+            <label for="date">Date</label>
+            <input type="date" id="date" name="date" th:value="${selectedDate}">
+        </div>
+        <div class="filter-field">
+            <label for="startTime">From</label>
+            <input type="time" id="startTime" name="startTime" th:value="${startTime}">
+        </div>
+        <div class="filter-field">
+            <label for="endTime">To</label>
+            <input type="time" id="endTime" name="endTime" th:value="${endTime}">
+        </div>
+        <button type="submit" class="search-button">Search slots</button>
+        <a class="clear-search" href="/userSchedAppt">Clear</a>
+    </form>
+
+    <div class="slot-list">
+
+        <div th:if="${#lists.isEmpty(slots)}" class="empty-message">
+            No open appointment slots match your search right now. Check back soon!
+        </div>
+
+        <div th:each="slot : ${slots}" class="slot-card"
+             th:with="provider=${providerProfiles[slot.serviceProviderId]}">
+
+            <div class="slot-info">
+                <h2 th:text="${slot.name}"></h2>
+                <p><strong>Time:</strong> <span th:text="${slot.time}"></span></p>
+                <p><strong>Category:</strong> <span th:text="${slot.category}"></span></p>
+                <p><strong>Location:</strong> <span th:text="${slot.location}"></span></p>
+                <button type="button" class="details-button" th:if="${provider != null}"
+                        th:attr="aria-controls=${'provider-details-' + slot.appointmentId}"
+                        onclick="toggleProviderDetails(this)">View provider details</button>
+                <div class="provider-details hidden" th:if="${provider != null}"
+                     th:id="${'provider-details-' + slot.appointmentId}">
+                    <h3>Service provider</h3>
+                    <p><strong>Name:</strong>
+                        <span th:text="${provider.user.firstName + ' ' + provider.user.lastName}"></span>
+                    </p>
+                    <p><strong>Qualification:</strong> <span th:text="${provider.qualification}"></span></p>
+                    <p><strong>Company:</strong> <span th:text="${provider.company}"></span></p>
+                    <p><strong>Service:</strong> <span th:text="${provider.serviceType}"></span></p>
+                </div>
+            </div>
+
+            <div class="slot-actions">
+                <button class="edit-slot-button book-slot-button"
+                        th:data-book-url="${'/userBookSlot/' + slot.appointmentId}"
+                        th:data-provider="${provider != null ? provider.user.firstName + ' ' + provider.user.lastName : 'Service provider'}"
+                        th:attr="data-name=${slot.name},
+                                 data-time=${slot.time},
+                                 data-category=${slot.category},
+                                 data-location=${slot.location}">
+                    Book Appointment
+                </button>
+            </div>
+
+        </div>
+    </div>
 </main>
 
+<!-- BOOK CONFIRMATION MODAL -->
+<div id="bookModal" class="modal hidden">
+    <div class="modal-content">
+        <h2>Book this appointment?</h2>
+        <p id="bookModalDetails"></p>
+        <div class="modal-actions">
+            <form id="bookForm" method="post">
+                <input type="hidden" name="category" th:value="${selectedCategory}">
+                <button type="submit" class="modal-button">Yes, book it</button>
+            </form>
+            <button id="cancelBook" class="modal-button">No, go back</button>
+        </div>
+    </div>
+</div>
+
+<!-- DELETE ACCOUNT MODAL -->
 <div id="deleteModal" class="modal hidden">
     <div class="modal-content">
         <h2>Confirm you wish to delete your account</h2>
@@ -75,7 +169,38 @@
         confirmDelete.addEventListener('click', () => {
             window.location = '/deleteAccount';
         });
+
+        /* BOOK CONFIRMATION MODAL */
+        const bookModal = document.getElementById('bookModal');
+        const bookDetails = document.getElementById('bookModalDetails');
+        const bookForm = document.getElementById('bookForm');
+        const cancelBook = document.getElementById('cancelBook');
+
+        document.querySelectorAll('.book-slot-button').forEach(btn => {
+            btn.addEventListener('click', () => {
+                bookForm.setAttribute('action', btn.getAttribute('data-book-url'));
+                bookDetails.textContent =
+                    btn.getAttribute('data-name') + ' — ' +
+                    btn.getAttribute('data-time') + ' (' +
+                    btn.getAttribute('data-category') + ') with ' +
+                    btn.getAttribute('data-provider') + ' at ' +
+                    btn.getAttribute('data-location');
+                bookModal.classList.remove('hidden');
+            });
+        });
+
+        cancelBook.addEventListener('click', () => {
+            bookModal.classList.add('hidden');
+        });
     });
+
+    function toggleProviderDetails(button) {
+        const details = document.getElementById(button.getAttribute('aria-controls'));
+        details.classList.toggle('hidden');
+        button.textContent = details.classList.contains('hidden')
+            ? 'View provider details'
+            : 'Hide provider details';
+    }
 </script>
 
 </body>

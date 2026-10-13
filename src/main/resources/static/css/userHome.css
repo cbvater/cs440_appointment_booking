@@ -176,3 +176,187 @@ main p {
   color: var(--muted);
   font-size: 1rem;
 }
+
+
+/* FEEDBACK MESSAGES */
+.error {
+    margin: 1rem 0 0;
+    padding: 0.6rem 0.75rem;
+    border: 1px solid #b3261e;
+    border-radius: 6px;
+    background: #fbeceb;
+    color: #8c1d18;
+    font-size: 0.9rem;
+}
+
+.success {
+    margin: 1rem 0 0;
+    padding: 0.6rem 0.75rem;
+    border: 1px solid var(--accent);
+    border-radius: 6px;
+    background: #e6f2f0;
+    color: var(--accent-dark);
+    font-size: 0.9rem;
+}
+
+/* SEARCH / FILTER BAR */
+.filter-bar {
+    display: flex;
+    align-items: flex-end;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin: 1.5rem 0 0.5rem;
+}
+
+.filter-field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+}
+
+.filter-bar label {
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+.filter-bar select,
+.filter-bar input {
+    padding: 0.5rem 0.75rem;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    font-size: 0.95rem;
+    background: var(--card);
+    color: var(--text);
+}
+
+.filter-bar select:focus-visible,
+.filter-bar input:focus-visible {
+    outline: 3px solid var(--accent);
+    outline-offset: 1px;
+}
+
+.search-button,
+.clear-search {
+    padding: 0.55rem 0.85rem;
+    border-radius: 6px;
+    font-size: 0.95rem;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.search-button {
+    border: none;
+    background: var(--accent);
+    color: #fff;
+}
+
+.search-button:hover {
+    background: var(--accent-dark);
+}
+
+.clear-search {
+    border: 1px solid var(--border);
+    color: var(--muted);
+}
+
+.clear-search:hover {
+    background: var(--card);
+    color: var(--accent);
+}
+
+/* APPOINTMENT SLOT LIST (shared with the provider's edit-slots page) */
+.slot-list {
+    margin-top: 1rem;
+}
+
+.slot-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1.25rem;
+    margin-bottom: 1rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+
+.slot-info h2 {
+    margin: 0 0 0.5rem;
+    font-size: 1.2rem;
+}
+
+.slot-info p {
+    margin: 0.25rem 0;
+    color: var(--muted);
+}
+
+.details-button {
+    margin-top: 0.65rem;
+    padding: 0.35rem 0.55rem;
+    border: 1px solid var(--accent);
+    border-radius: 5px;
+    background: transparent;
+    color: var(--accent);
+    cursor: pointer;
+}
+
+.details-button:hover {
+    background: #e6f2f0;
+}
+
+.provider-details {
+    margin-top: 0.75rem;
+    padding: 0.75rem;
+    border-left: 3px solid var(--accent);
+    background: #f5f9f8;
+}
+
+.provider-details h3 {
+    margin: 0 0 0.35rem;
+    font-size: 1rem;
+}
+
+.provider-details p {
+    margin: 0.2rem 0;
+}
+
+.slot-actions {
+    position: relative;
+}
+
+.edit-slot-button {
+    padding: 0.6rem 1rem;
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.edit-slot-button:hover {
+    background: var(--accent-dark);
+}
+
+/* EMPTY STATE MESSAGE */
+.empty-message {
+    margin-top: 2rem;
+    padding: 1.5rem;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    text-align: center;
+    color: var(--muted);
+    font-size: 1.05rem;
+}
+
+@media (max-width: 650px) {
+    .slot-card {
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .slot-actions,
+    .book-slot-button {
+        width: 100%;
+    }
+}

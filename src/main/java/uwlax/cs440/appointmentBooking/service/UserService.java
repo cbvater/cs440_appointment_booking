@@ -73,7 +73,7 @@ public class UserService {
         user.setLastName(lastName);
         user.setUsername(username);
         user.setPasswordHash(passwordEncoder.encode(password));
-        user.setRole("USER");
+        user.setRole("User");
         user.setActive(true);
 
         return userRepository.save(user);

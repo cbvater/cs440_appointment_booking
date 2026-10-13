@@ -2,20 +2,29 @@ package uwlax.cs440.appointmentBooking.service;
 
 import org.springframework.stereotype.Service;
 import uwlax.cs440.appointmentBooking.model.Appointment;
+import uwlax.cs440.appointmentBooking.model.ServiceProvider;
 import uwlax.cs440.appointmentBooking.repository.AppointmentRepository;
+import uwlax.cs440.appointmentBooking.repository.ServiceProviderRepository;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 import java.util.Optional;
 
 @Service
 public class AppointmentService {
 
     private final AppointmentRepository repo;
+    private final ServiceProviderRepository serviceProviderRepository;
 
-    public AppointmentService(AppointmentRepository repo) {
+    public AppointmentService(AppointmentRepository repo, ServiceProviderRepository serviceProviderRepository) {
         this.repo = repo;
+        this.serviceProviderRepository = serviceProviderRepository;
     }
 
     // ------------------------------------------------------------
@@ -40,17 +49,55 @@ public class AppointmentService {
      * narrowed to one category. Cancelled slots and slots already in the past
      * never show up here. Soonest slot first.
      */
-    public List<Appointment> searchOpenSlots(String category) {
+    public List<Appointment> searchOpenSlots(String category, String providerName,
+                                             LocalDate date, LocalTime startTime, LocalTime endTime) {
         List<Appointment> open = (category == null || category.isBlank())
                 ? repo.findByBookedFalse()
                 : repo.findByCategoryIgnoreCaseAndBookedFalse(category);
 
         LocalDateTime now = LocalDateTime.now();
+        Map<Long, ServiceProvider> providers = getProviderProfiles(open);
+        String normalizedProviderName = providerName == null ? "" : providerName.trim().toLowerCase(Locale.ROOT);
+
         return open.stream()
                 .filter(a -> !a.isCancelled())
                 .filter(a -> a.getTime().isAfter(now))
+                .filter(a -> date == null || a.getTime().toLocalDate().equals(date))
+                .filter(a -> startTime == null || !a.getTime().toLocalTime().isBefore(startTime))
+                .filter(a -> endTime == null || !a.getTime().toLocalTime().isAfter(endTime))
+                .filter(a -> normalizedProviderName.isBlank()
+                        || providerMatches(providers.get(a.getServiceProviderId()), normalizedProviderName))
                 .sorted(Comparator.comparing(Appointment::getTime))
                 .toList();
+    }
+
+    public List<Appointment> searchOpenSlots(String category) {
+        return searchOpenSlots(category, null, null, null, null);
+    }
+
+    public Map<Long, ServiceProvider> getProviderProfiles(List<Appointment> slots) {
+        List<Long> providerIds = slots.stream()
+                .map(Appointment::getServiceProviderId)
+                .distinct()
+                .toList();
+        Map<Long, ServiceProvider> providers = new HashMap<>();
+        serviceProviderRepository.findByUser_UserIdIn(providerIds)
+                .forEach(provider -> {
+                    providers.put(provider.getId(), provider);
+                    if (provider.getUser() != null) {
+                        providers.put(provider.getUser().getUserId(), provider);
+                    }
+                });
+        return providers;
+    }
+
+    private boolean providerMatches(ServiceProvider provider, String searchTerm) {
+        if (provider == null || provider.getUser() == null) {
+            return false;
+        }
+        String providerFullName = (provider.getUser().getFirstName() + " "
+                + provider.getUser().getLastName()).toLowerCase(Locale.ROOT);
+        return providerFullName.contains(searchTerm);
     }
 
     // ------------------------------------------------------------

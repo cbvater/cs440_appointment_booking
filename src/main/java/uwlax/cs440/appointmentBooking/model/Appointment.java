@@ -39,7 +39,6 @@ public class Appointment {
 
     public Appointment() {}
 
-    // ⭐ REQUIRED FOR EDITING TO WORK
     public void setAppointmentId(long appointmentId) {
         this.appointmentId = appointmentId;
     }

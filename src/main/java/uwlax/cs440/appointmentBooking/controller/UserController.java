@@ -110,11 +110,17 @@ public class UserController {
     }
 
     @GetMapping("/userHome")
-    public String showHome(HttpSession session) {
-        if (session.getAttribute("userId") == null)
-        {
-            return "redirect:/login"; // not logged in
+    public String showHome(HttpSession session, Model model) {
+        if (!"User".equals(session.getAttribute("role"))) {
+            return "redirect:/login";
         }
+
+        long userID = (long) session.getAttribute("userId");
+
+        List<Appointment> appointments = appointmentService.getCustomerBookings(userID);
+
+        model.addAttribute("appointments", appointments);
+
         return "userHome";
     }
 

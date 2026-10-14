@@ -31,7 +31,31 @@
 
 <main>
     <h1>My Appointments</h1>
-    <p>User Appts will go here</p>
+
+    <div th:if="${#lists.isEmpty(appointments)}">
+        <p>You have no booked appointments.</p>
+    </div>
+
+    <div th:each="appointment : ${appointments}" class="slot-card">
+        <div class="slot-info">
+            <h2 th:text="${appointment.name}"></h2>
+
+            <p>
+                <strong>Time:</strong>
+                <span th:text="${appointment.time}"></span>
+            </p>
+
+            <p>
+                <strong>Category:</strong>
+                <span th:text="${appointment.category}"></span>
+            </p>
+
+            <p>
+                <strong>Location:</strong>
+                <span th:text="${appointment.location}"></span>
+            </p>
+        </div>
+    </div>  
 </main>
 
 <div id="deleteModal" class="modal hidden">

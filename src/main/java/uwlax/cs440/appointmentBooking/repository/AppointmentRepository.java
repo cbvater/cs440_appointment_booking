@@ -29,6 +29,10 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long> 
     // (e.g. "medical" vs "Medical") when the user searches by it
     List<Appointment> findByCategoryIgnoreCaseAndBookedFalse(String category);
 
-    // Provider's schedule sorted chronologically
-    List<Appointment> findByServiceProviderIdOrderByTimeAsc(long serviceProviderId);
+    // Provider's unbooked appts sorted chronologically
+    List<Appointment> findByServiceProviderIdAndBookedFalseOrderByTimeAsc(long serviceProviderId);
+
+    // Providers upcoming appointments
+    List<Appointment> findByServiceProviderIdAndBookedTrueOrderByTimeAsc(Long serviceProviderId);
+
 }

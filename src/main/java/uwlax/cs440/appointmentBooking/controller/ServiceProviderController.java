@@ -72,10 +72,17 @@ public class ServiceProviderController {
     // ------------------------------------------------------------
 
     @GetMapping("/serviceProviderHome")
-    public String providerHome(HttpSession session) {
-        if (session.getAttribute("user") == null) {
+    public String providerHome(HttpSession session, Model model) {
+        System.out.println("role=" + session.getAttribute("role")
+                + " userId=" + session.getAttribute("userId"));
+
+        if (!"Service Provider".equals(session.getAttribute("role"))) {
             return "redirect:/login";
         }
+
+        long providerId = (long) session.getAttribute("userId");
+        model.addAttribute("appointments", appointmentService.getProviderBookings(providerId));
+
         return "serviceProviderHome";
     }
 
@@ -106,7 +113,7 @@ public class ServiceProviderController {
         }
         long providerId = (long) session.getAttribute("userId");
 
-        List<Appointment> slots = appointmentService.getProviderSlots(providerId);
+        List<Appointment> slots = appointmentService.getProviderUnbookedSlots(providerId);
         model.addAttribute("slots", slots);
 
         return "serviceProviderEditSlots";
@@ -143,30 +150,31 @@ public class ServiceProviderController {
     }
 
     // ------------------------------------------------------------
-    // CANCEL SLOT
+    // DELETE SLOT
     // ------------------------------------------------------------
-
-    @PostMapping("/serviceProviderCancelSlot/{id}")
+    // Service provider can delete available appointment slots; it deletes the appointment from the DB
+    // Service provider can cancel booked appointments(which sets appointment to "canceled" in DB); that method is cancelAppt();
+    @PostMapping("/serviceProviderDeleteSlot/{id}")
     public String cancelSlot(@PathVariable long id, HttpSession session) {
         if (session.getAttribute("user") == null) {
             return "redirect:/login";
         }
 
-        appointmentService.cancelSlot(id);
+        appointmentService.delete(id);
         return "redirect:/serviceProviderEditSlots";
     }
 
-    // ------------------------------------------------------------
-    // UNCANCEL SLOT
-    // ------------------------------------------------------------
 
-    @PostMapping("/serviceProviderUncancelSlot/{id}")
-    public String uncancelSlot(@PathVariable long id, HttpSession session) {
+    // ------------------------------------------------------------
+    // CANCEL BOOKED APPT
+    // ------------------------------------------------------------
+    @PostMapping("/serviceProviderCancelAppt/{id}")
+    public String cancelAppt(@PathVariable long id, HttpSession session) {
         if (session.getAttribute("user") == null) {
             return "redirect:/login";
         }
 
-        appointmentService.uncancelSlot(id);
-        return "redirect:/serviceProviderEditSlots";
+        appointmentService.cancelAppointment(id);
+        return "redirect:/serviceProviderHome";
     }
 }

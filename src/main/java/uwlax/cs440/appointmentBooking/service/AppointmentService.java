@@ -36,14 +36,17 @@ public class AppointmentService {
         return result.orElse(null);
     }
 
-    public List<Appointment> getProviderSlots(long providerId) {
-        return repo.findByServiceProviderIdOrderByTimeAsc(providerId);
+    public List<Appointment> getProviderUnbookedSlots(long providerId) {
+        return repo.findByServiceProviderIdAndBookedFalseOrderByTimeAsc(providerId);
     }
 
     public List<Appointment> getCustomerBookings(long userId) {
         return repo.findByUserIdAndBookedTrue(userId);
     }
 
+    public List<Appointment> getProviderBookings(long providerId) {
+        return repo.findByServiceProviderIdAndBookedTrueOrderByTimeAsc(providerId);
+    }
     /**
      * Open (bookable) slots for the "Schedule Appts" search tab, optionally
      * narrowed to one category. Cancelled slots and slots already in the past
@@ -112,6 +115,8 @@ public class AppointmentService {
         repo.deleteById(id);
     }
 
+
+
     // ------------------------------------------------------------
     // BUSINESS LOGIC
     // ------------------------------------------------------------
@@ -153,26 +158,17 @@ public class AppointmentService {
         return repo.save(existing);
     }
 
-    /** Provider cancels a slot */
-    public Appointment cancelSlot(long id) {
+    /** Provider cancels an appointment */
+    public Appointment cancelAppointment(long id) {
         Appointment appt = getById(id);
         if (appt == null) return null;
 
         appt.setCancelled(true);
-        appt.setBooked(false);
         appt.setUserId(0);
 
         return repo.save(appt);
     }
 
-    /** Provider un-cancels a slot */
-    public Appointment uncancelSlot(long id) {
-        Appointment appt = getById(id);
-        if (appt == null) return null;
-
-        appt.setCancelled(false);
-        return repo.save(appt);
-    }
 
     /**
      * Customer books a slot.

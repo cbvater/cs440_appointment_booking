@@ -59,9 +59,7 @@
                     <span th:text="${#temporals.format(slot.time.plusMinutes(slot.durationMinutes), 'h:mm a')}"></span>
                 </p>
                 <p><strong>Category:</strong> <span th:text="${slot.category}"></span></p>
-                <p><strong>Booked:</strong> <span th:text="${slot.booked}"></span></p>
                 <p><strong>Location:</strong> <span th:text="${slot.location}"></span></p>
-                <p><strong>Cancelled:</strong> <span th:text="${slot.cancelled}"></span></p>
             </div>
 
             <div class="slot-actions">
@@ -78,17 +76,10 @@
                 <div class="edit-dropdown hidden">
                     <button class="dropdown-item edit-details">Edit Appointment Details</button>
 
-                    <!-- CANCEL / UNCANCEL BUTTONS -->
-                    <div th:if="${slot.cancelled}">
-                        <form th:action="@{'/serviceProviderUncancelSlot/' + ${slot.appointmentId}}" method="post">
-                            <button class="dropdown-item uncancel-slot" type="submit">Uncancel Appointment</button>
-                        </form>
-                    </div>
-
                     <div th:unless="${slot.cancelled}">
                         <button class="dropdown-item cancel-slot"
-                                th:attr="data-cancel-url=@{'/serviceProviderCancelSlot/' + ${slot.appointmentId}}">
-                            Cancel Appointment
+                                th:attr="data-cancel-url=@{'/serviceProviderDeleteSlot/' + ${slot.appointmentId}}">
+                            Delete Appointment Slot
                         </button>
                     </div>
                 </div>
@@ -186,10 +177,10 @@
 <!-- CANCEL CONFIRMATION MODAL -->
 <div id="cancelModal" class="modal hidden">
     <div class="modal-content">
-        <h2>Cancel this appointment?</h2>
+        <h2>Delete this appointment slot?</h2>
         <div class="modal-actions">
             <form id="cancelForm" method="post">
-                <button type="submit" class="modal-button delete">Yes, cancel it</button>
+                <button type="submit" class="modal-button delete">Yes, delete it</button>
             </form>
             <button id="cancelCancel" class="modal-button">No, go back</button>
         </div>

@@ -5,6 +5,7 @@ import uwlax.cs440.appointmentBooking.model.Appointment;
 import uwlax.cs440.appointmentBooking.model.ServiceProvider;
 import uwlax.cs440.appointmentBooking.repository.AppointmentRepository;
 import uwlax.cs440.appointmentBooking.repository.ServiceProviderRepository;
+import uwlax.cs440.appointmentBooking.service.NotificationService;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -21,10 +22,12 @@ public class AppointmentService {
 
     private final AppointmentRepository repo;
     private final ServiceProviderRepository serviceProviderRepository;
+    private final NotificationService notificationService;
 
-    public AppointmentService(AppointmentRepository repo, ServiceProviderRepository serviceProviderRepository) {
+    public AppointmentService(AppointmentRepository repo, ServiceProviderRepository serviceProviderRepository, NotificationService notificationService) {
         this.repo = repo;
         this.serviceProviderRepository = serviceProviderRepository;
+        this.notificationService = notificationService;
     }
 
     // ------------------------------------------------------------
@@ -42,6 +45,10 @@ public class AppointmentService {
 
     public List<Appointment> getCustomerBookings(long userId) {
         return repo.findByUserIdAndBookedTrue(userId);
+    }
+
+    public List<Appointment> getCustomerBookingsInOrder(long userId) {
+        return repo.findByUserIdAndBookedTrueOrderByTimeAsc(userId);
     }
 
     public List<Appointment> getProviderBookings(long providerId) {
@@ -159,12 +166,19 @@ public class AppointmentService {
     }
 
     /** Provider cancels an appointment */
-    public Appointment cancelAppointment(long id) {
-        Appointment appt = getById(id);
+    public Appointment cancelAppointment(long appointmentId, long userId, String actingRole) {
+        Appointment appt = getById(appointmentId);
         if (appt == null) return null;
 
+        boolean byProvider = "Service Provider".equals(actingRole);
+
         appt.setCancelled(true);
-        appt.setUserId(0);
+
+        if(byProvider){
+            notificationService.notifyUser(appt.getUserId(), "Your appointment \"" + appt.getName() + "\" on " + appt.getTime() + " was cancelled by the provider");
+        } else {
+            notificationService.notifyUser(appt.getServiceProviderId(), "Your appointment \"" + appt.getName() + "\" on " + appt.getTime() + " was cancelled by the customer");
+        }
 
         return repo.save(appt);
     }

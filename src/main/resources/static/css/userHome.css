@@ -360,3 +360,60 @@ main p {
         width: 100%;
     }
 }
+.slot-card.cancelled {
+    opacity: 0.5;
+    background-color: #e0e0e0;
+    filter: grayscale(100%);
+}
+
+.cancelled-label {
+    display: inline-block;
+    color: #b00020;
+    font-weight: bold;
+    margin-bottom: 0.5rem;
+}
+/* unread notifications */
+.slot-card.unchecked {
+    border-left: 4px solid #1a73e8;
+    background-color: #f0f6ff;
+}
+
+.nav-button.notif-button {
+    padding: 4px;
+    min-width: 0;
+    width: auto;
+    height: auto;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 0;
+}
+
+.bell-wrap {
+    position: relative;
+    display: inline-block;
+    line-height: 0;
+}
+
+.bell-icon {
+    width: 20px;
+    height: 20px;
+    display: block;
+}
+
+.notif-button .badge {
+    position: absolute;
+    top: -8px;
+    right: -9px;
+    min-width: 16px;
+    height: 16px;
+    padding: 0 4px;
+    box-sizing: border-box;
+    border-radius: 8px;
+    background: #d93025;
+    color: #fff;
+    font-size: 10px;
+    font-weight: bold;
+    line-height: 16px;
+    text-align: center;
+}

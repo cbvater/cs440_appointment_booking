@@ -10,6 +10,7 @@ import uwlax.cs440.appointmentBooking.model.User;
 import uwlax.cs440.appointmentBooking.repository.AppointmentRepository;
 import uwlax.cs440.appointmentBooking.repository.ServiceProviderRepository;
 import uwlax.cs440.appointmentBooking.service.AppointmentService;
+import uwlax.cs440.appointmentBooking.service.NotificationService;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -28,6 +29,9 @@ class AppointmentServiceTest {
     @Mock
     private ServiceProviderRepository serviceProviderRepository;
 
+    @Mock
+    private NotificationService notificationService;
+
     @Test
     void searchOpenSlotsFiltersByProviderNameAndDate() {
         LocalDate appointmentDate = LocalDate.now().plusDays(1);
@@ -41,8 +45,7 @@ class AppointmentServiceTest {
         when(serviceProviderRepository.findByUser_UserIdIn(any()))
                 .thenReturn(List.of(matchingProvider, otherProvider));
 
-        AppointmentService service = new AppointmentService(
-                appointmentRepository, serviceProviderRepository);
+        AppointmentService service = new AppointmentService(appointmentRepository, serviceProviderRepository, notificationService);
 
         List<Appointment> results = service.searchOpenSlots(
                 null, "jane", appointmentDate, null, null);

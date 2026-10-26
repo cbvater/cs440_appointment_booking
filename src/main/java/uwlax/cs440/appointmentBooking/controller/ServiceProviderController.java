@@ -8,7 +8,9 @@ import org.springframework.web.bind.annotation.*;
 import uwlax.cs440.appointmentBooking.model.Appointment;
 import uwlax.cs440.appointmentBooking.model.ServiceProvider;
 import uwlax.cs440.appointmentBooking.service.AppointmentService;
+import uwlax.cs440.appointmentBooking.service.NotificationService;
 import uwlax.cs440.appointmentBooking.service.ServiceProviderService;
+import uwlax.cs440.appointmentBooking.service.NotificationService;
 
 import java.util.List;
 
@@ -17,11 +19,14 @@ public class ServiceProviderController {
 
     private final ServiceProviderService serviceProviderService;
     private final AppointmentService appointmentService;
+    private final NotificationService notificationService;
 
     public ServiceProviderController(ServiceProviderService serviceProviderService,
-                                     AppointmentService appointmentService) {
+                                     AppointmentService appointmentService,
+                                     NotificationService notificationService) {
         this.serviceProviderService = serviceProviderService;
         this.appointmentService = appointmentService;
+        this.notificationService = notificationService;
     }
 
     // ------------------------------------------------------------
@@ -173,8 +178,32 @@ public class ServiceProviderController {
         if (session.getAttribute("user") == null) {
             return "redirect:/login";
         }
+        long userId = (long) session.getAttribute("userId");
+        String role = (String) session.getAttribute("role");
 
-        appointmentService.cancelAppointment(id);
+        appointmentService.cancelAppointment(id, userId, role);
         return "redirect:/serviceProviderHome";
+    }
+
+    // ------------------------------------------------------------
+    // NOTIFICATIONS
+    // ------------------------------------------------------------
+
+    @GetMapping("/serviceProviderNotifications")
+    public String notifications(HttpSession session, Model model) {
+        if (!"Service Provider".equals(session.getAttribute("role"))) {
+            return "redirect:/login";
+        }
+        long userId = (long) session.getAttribute("userId");
+        model.addAttribute("notifications", notificationService.getNotifications(userId));
+        return "serviceProviderNotifications";
+    }
+    @PostMapping("/serviceProviderNotifications/markChecked")
+    public String markSeen(HttpSession session) {
+        if (!"Service Provider".equals(session.getAttribute("role"))) {
+            return "redirect:/login";
+        }
+        notificationService.markAllChecked((long) session.getAttribute("userId"));
+        return "redirect:/serviceProviderNotifications";
     }
 }

@@ -13,6 +13,7 @@ import uwlax.cs440.appointmentBooking.model.Appointment;
 import uwlax.cs440.appointmentBooking.model.ServiceProvider;
 import uwlax.cs440.appointmentBooking.model.User;
 import uwlax.cs440.appointmentBooking.service.AppointmentService;
+import uwlax.cs440.appointmentBooking.service.NotificationService;
 import uwlax.cs440.appointmentBooking.service.UserService;
 
 import java.time.LocalDate;
@@ -49,10 +50,14 @@ public class UserController {
 
     private final UserService userService;
     private final AppointmentService appointmentService;
+    private final NotificationService notificationService;
 
-    public UserController(UserService userService, AppointmentService appointmentService){
+    public UserController(UserService userService,
+                          AppointmentService appointmentService,
+                          NotificationService notificationService){
         this.userService = userService;
         this.appointmentService = appointmentService;
+        this.notificationService = notificationService;
     }
 
     @GetMapping("/register/user")
@@ -117,7 +122,7 @@ public class UserController {
 
         long userID = (long) session.getAttribute("userId");
 
-        List<Appointment> appointments = appointmentService.getCustomerBookings(userID);
+        List<Appointment> appointments = appointmentService.getCustomerBookingsInOrder(userID);
 
         model.addAttribute("appointments", appointments);
 
@@ -220,4 +225,40 @@ public class UserController {
         return "userApptHistory";
     }
 
+    // ------------------------------------------------------------
+    // NOTIFICATIONS
+    // ------------------------------------------------------------
+
+    @GetMapping("/userNotifications")
+    public String notifications(HttpSession session, Model model) {
+        if (!"User".equals(session.getAttribute("role"))) {
+            return "redirect:/login";
+        }
+        long userId = (long) session.getAttribute("userId");
+        model.addAttribute("notifications", notificationService.getNotifications(userId));
+        return "userNotifications";
+    }
+    @PostMapping("/userNotifications/markChecked")
+    public String markChecked(HttpSession session) {
+        if (!"User".equals(session.getAttribute("role"))) {
+            return "redirect:/login";
+        }
+        notificationService.markAllChecked((long) session.getAttribute("userId"));
+        return "redirect:/userNotifications";
+    }
+
+    // ------------------------------------------------------------
+    // CANCEL BOOKED APPT
+    // ------------------------------------------------------------
+    @PostMapping("/userCancelAppt/{id}")
+    public String cancelAppt(@PathVariable long id, HttpSession session) {
+        if (session.getAttribute("user") == null) {
+            return "redirect:/login";
+        }
+        long userId = (long) session.getAttribute("userId");
+        String role = (String) session.getAttribute("role");
+
+        appointmentService.cancelAppointment(id, userId, role);
+        return "redirect:/userHome";
+    }
 }

@@ -19,6 +19,9 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long> 
     // A customer's confirmed bookings only (booked = true)
     List<Appointment> findByUserIdAndBookedTrue(long userId);
 
+    // Customers full list of bookings in order
+    List<Appointment> findByUserIdAndBookedTrueOrderByTimeAsc(long userId);
+
     // Every open slot across all providers, e.g. for a search/browse page
     List<Appointment> findByBookedFalse();
 

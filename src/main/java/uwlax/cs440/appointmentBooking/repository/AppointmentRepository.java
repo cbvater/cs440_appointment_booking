@@ -38,4 +38,13 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long> 
     // Providers upcoming appointments
     List<Appointment> findByServiceProviderIdAndBookedTrueOrderByTimeAsc(Long serviceProviderId);
 
+
+    // Everything on a provider's schedule that is still active (not cancelled),
+    // booked or open. Used to detect overlapping slots.
+    List<Appointment> findByServiceProviderIdAndCancelledFalse(long serviceProviderId);
+
+    // A customer's active bookings (booked and not cancelled by the provider).
+    // Used to detect double-booking.
+    List<Appointment> findByUserIdAndBookedTrueAndCancelledFalse(long userId);
+
 }

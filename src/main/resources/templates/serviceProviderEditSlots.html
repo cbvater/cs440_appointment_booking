@@ -48,6 +48,8 @@
 <main>
     <h1>Edit Available Appointment Slots</h1>
 
+    <p class="error" th:if="${error}" th:text="${error}"></p>
+
     <div class="add-slot-container">
         <button class="add-slot-button" id="openAddModal">+ Add New Appointment Slot</button>
     </div>
@@ -71,7 +73,7 @@
                     <strong>Time:</strong>
                     <span th:text="${#temporals.format(slot.time, 'h:mm a')}"></span>
                     -
-                    <span th:text="${#temporals.format(slot.time.plusMinutes(slot.durationMinutes), 'h:mm a')}"></span>
+                    <span th:text="${#temporals.format(slot.endTime, 'h:mm a')}"></span>
                 </p>
                 <p><strong>Category:</strong> <span th:text="${slot.category}"></span></p>
                 <p><strong>Location:</strong> <span th:text="${slot.location}"></span></p>
@@ -84,7 +86,7 @@
                         data-category=${slot.category},
                         data-time=${slot.time},
                         data-location=${slot.location},
-                        data-duration=${slot.durationMinutes}">
+                        data-end-time=${slot.endTime}">
                     Edit Appointment ▾
                 </button>
 
@@ -121,19 +123,11 @@
                 <option value="Medical">Medical</option>
             </select>
 
-            <label class="modal-label" for="time">Date & Time</label>
+            <label class="modal-label" for="time">Start Date & Time</label>
             <input class="modal-input" type="datetime-local" name="time" id="time" required>
 
-            <label class="modal-label">Duration</label>
-            <div class="duration-row">
-                <label>Hours</label>
-                <input class="modal-input" type="number" id="durationHours" name="durationHours" min="0" max="23" value="1" required>
-
-                <label>Minutes</label>
-                <input class="modal-input" type="number" id="durationMins" name="durationMins" min="0" max="59" value="0" required>
-
-                <input type="hidden" name="durationMinutes" id="durationMinutes">
-            </div>
+            <label class="modal-label" for="endTime">End Date & Time</label>
+            <input class="modal-input" type="datetime-local" name="endTime" id="endTime" required>
 
             <label class="modal-label" for="location">Location</label>
             <input class="modal-input" type="text" name="location" id="location" required>
@@ -164,19 +158,11 @@
                 <option value="Medical">Medical</option>
             </select>
 
-            <label class="modal-label" for="edit-time">Date & Time</label>
+            <label class="modal-label" for="edit-time">Start Date & Time</label>
             <input class="modal-input" type="datetime-local" name="time" id="edit-time" required>
 
-            <label class="modal-label">Duration</label>
-            <div class="duration-row">
-                <label>Hours</label>
-                <input class="modal-input" type="number" name="durationHours" id="edit-duration-hours" min="0" max="23" required>
-
-                <label>Minutes</label>
-                <input class="modal-input" type="number" id="edit-duration-minutes" min="0" max="59" required>
-
-                <input type="hidden" name="durationMinutes" id="edit-duration-total">
-            </div>
+            <label class="modal-label" for="edit-end-time">End Date & Time</label>
+            <input class="modal-input" type="datetime-local" name="endTime" id="edit-end-time" required>
 
             <label class="modal-label" for="edit-location">Location</label>
             <input class="modal-input" type="text" name="location" id="edit-location" required>
@@ -267,14 +253,8 @@
                     document.getElementById('edit-location').value =
                         btn.getAttribute('data-location');
 
-                    const duration =
-                        parseInt(btn.getAttribute('data-duration'));
-
-                    document.getElementById('edit-duration-hours').value =
-                     Math.floor(duration / 60);
-
-                    document.getElementById('edit-duration-minutes').value =
-                        duration % 60;
+                    document.getElementById('edit-end-time').value =
+                        btn.getAttribute('data-end-time');
 
                     editModal.classList.remove('hidden');
                 });
@@ -298,20 +278,19 @@
 
         cancelCancel.addEventListener('click', () => cancelModal.classList.add('hidden'));
 
-        /* CREATE SLOT DURATION CALCULATION */
-        const addForm = document.querySelector('#addSlotModal form');
-        addForm.addEventListener('submit', () => {
-            const hours = parseInt(document.getElementById('durationHours').value) || 0;
-            const minutes = parseInt(document.getElementById('durationMins').value) || 0;
-            document.getElementById('durationMinutes').value = (hours * 60) + minutes;
-        });
+        /* CLIENT-SIDE HINTS (the server enforces the real rules) */
+        const pad = n => String(n).padStart(2, '0');
+        const now = new Date();
+        const nowLocal = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`
+            + `T${pad(now.getHours())}:${pad(now.getMinutes())}`;
+        document.getElementById('time').min = nowLocal;
+        document.getElementById('endTime').min = nowLocal;
 
-        /* EDIT SLOT DURATION CALCULATION */
-        const editForm = document.querySelector('#editSlotModal form');
-        editForm.addEventListener('submit', () => {
-        const hours = parseInt(document.getElementById('edit-duration-hours').value) || 0;
-        const minutes = parseInt(document.getElementById('edit-duration-minutes').value) || 0;
-        document.getElementById('edit-duration-total').value = (hours * 60) + minutes;
+        document.getElementById('time').addEventListener('change', (e) => {
+            document.getElementById('endTime').min = e.target.value || nowLocal;
+        });
+        document.getElementById('edit-time').addEventListener('change', (e) => {
+            document.getElementById('edit-end-time').min = e.target.value || '';
         });
     });
 </script>

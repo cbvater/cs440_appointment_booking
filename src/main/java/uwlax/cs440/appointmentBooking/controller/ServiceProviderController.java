@@ -4,6 +4,7 @@ import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import uwlax.cs440.appointmentBooking.model.Appointment;
 import uwlax.cs440.appointmentBooking.model.ServiceProvider;
@@ -129,13 +130,18 @@ public class ServiceProviderController {
     // ------------------------------------------------------------
 
     @PostMapping("/serviceProviderAddSlot")
-    public String addSlot(@ModelAttribute Appointment appt, HttpSession session) {
+    public String addSlot(@ModelAttribute Appointment appt, HttpSession session,
+                          RedirectAttributes redirectAttributes) {
         if (session.getAttribute("user") == null) {
             return "redirect:/login";
         }
 
         long providerId = (long) session.getAttribute("userId");
-        appointmentService.createSlot(appt, providerId);
+        try {
+            appointmentService.createSlot(appt, providerId);
+        } catch (IllegalArgumentException ex) {
+            redirectAttributes.addFlashAttribute("error", ex.getMessage());
+        }
 
         return "redirect:/serviceProviderEditSlots";
     }
@@ -145,12 +151,17 @@ public class ServiceProviderController {
     // ------------------------------------------------------------
 
     @PostMapping("/serviceProviderEditSlot")
-    public String editSlot(@ModelAttribute Appointment appt, HttpSession session) {
+    public String editSlot(@ModelAttribute Appointment appt, HttpSession session,
+                           RedirectAttributes redirectAttributes) {
         if (session.getAttribute("user") == null) {
             return "redirect:/login";
         }
 
-        appointmentService.editSlot(appt);
+        try {
+            appointmentService.editSlot(appt);
+        } catch (IllegalArgumentException ex) {
+            redirectAttributes.addFlashAttribute("error", ex.getMessage());
+        }
         return "redirect:/serviceProviderEditSlots";
     }
 

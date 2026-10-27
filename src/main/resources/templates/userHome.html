@@ -59,7 +59,7 @@
 
             <span th:if="${appointment.cancelled}" class="cancelled-label">Cancelled</span>
 
-            <p><strong>Time: </strong><span th:text="${appointment.time}"></span></p>
+            <p><strong>Time: </strong><span th:text="${#temporals.format(appointment.time, 'MMM d, yyyy h:mm a') + ' – ' + #temporals.format(appointment.endTime, 'h:mm a')}"></span></p>
             <p><strong>Category: </strong><span th:text="${appointment.category}"></span></p>
             <p><strong>Location: </strong><span th:text="${appointment.location}"></span></p>
         </div>

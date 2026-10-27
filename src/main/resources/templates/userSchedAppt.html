@@ -93,7 +93,7 @@
 
             <div class="slot-info">
                 <h2 th:text="${slot.name}"></h2>
-                <p><strong>Time:</strong> <span th:text="${slot.time}"></span></p>
+                <p><strong>Time:</strong> <span th:text="${#temporals.format(slot.time, 'MMM d, yyyy h:mm a') + ' – ' + #temporals.format(slot.endTime, 'h:mm a')}"></span></p>
                 <p><strong>Category:</strong> <span th:text="${slot.category}"></span></p>
                 <p><strong>Location:</strong> <span th:text="${slot.location}"></span></p>
                 <button type="button" class="details-button" th:if="${provider != null}"
@@ -114,9 +114,9 @@
             <div class="slot-actions">
                 <button class="edit-slot-button book-slot-button"
                         th:data-book-url="${'/userBookSlot/' + slot.appointmentId}"
+                        th:data-time="${#temporals.format(slot.time, 'MMM d, yyyy h:mm a') + ' – ' + #temporals.format(slot.endTime, 'h:mm a')}"
                         th:data-provider="${provider != null ? provider.user.firstName + ' ' + provider.user.lastName : 'Service provider'}"
                         th:attr="data-name=${slot.name},
-                                 data-time=${slot.time},
                                  data-category=${slot.category},
                                  data-location=${slot.location}">
                     Book Appointment

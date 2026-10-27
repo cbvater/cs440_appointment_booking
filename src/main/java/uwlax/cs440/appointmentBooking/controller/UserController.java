@@ -158,7 +158,8 @@ public class UserController {
             return "redirect:/login";
         }
 
-        addSearchResults(model, category, providerName, date, startTime, endTime);
+        long userId = (long) session.getAttribute("userId");
+        addSearchResults(userId, model, category, providerName, date, startTime, endTime);
         return "userSchedAppt";
     }
 
@@ -183,7 +184,7 @@ public class UserController {
             appointmentService.bookSlot(id, userId);
         } catch (IllegalStateException ex) {
             model.addAttribute("error", ex.getMessage());
-            addSearchResults(model, category, providerName, date, startTime, endTime);
+            addSearchResults(userId, model, category, providerName, date, startTime, endTime);
             return "userSchedAppt";
         }
 
@@ -197,10 +198,10 @@ public class UserController {
         return "redirect:" + redirect.toUriString();
     }
 
-    private void addSearchResults(Model model, String category, String providerName,
+    private void addSearchResults(long userId, Model model, String category, String providerName,
                                   LocalDate date, LocalTime startTime, LocalTime endTime) {
         List<Appointment> slots = appointmentService.searchOpenSlots(
-                category, providerName, date, startTime, endTime);
+                userId, category, providerName, date, startTime, endTime);
         Map<Long, ServiceProvider> providerProfiles = appointmentService.getProviderProfiles(slots);
         model.addAttribute("slots", slots);
         model.addAttribute("providerProfiles", providerProfiles);

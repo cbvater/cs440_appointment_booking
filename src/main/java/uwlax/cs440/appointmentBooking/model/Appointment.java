@@ -22,8 +22,11 @@ public class Appointment {
     @Column(nullable = false)
     private LocalDateTime time;
 
-    @Column(nullable=false)
-    private int durationMinutes;
+    // When the appointment ends. Must be after `time` (the start); the
+    // service layer enforces that and checks for overlapping appointments.
+    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
+    @Column(nullable = false)
+    private LocalDateTime endTime;
 
     @Column(nullable = false)
     private String category;
@@ -69,8 +72,10 @@ public class Appointment {
         this.time = time;
     }
 
-    public int getDurationMinutes() { return durationMinutes; }
-    public void setDurationMinutes(int durationMinutes) { this.durationMinutes = durationMinutes; }
+    public LocalDateTime getEndTime() { return this.endTime; }
+    public void setEndTime(LocalDateTime endTime) {
+        this.endTime = endTime;
+    }
 
     public String getCategory() {
         return this.category;

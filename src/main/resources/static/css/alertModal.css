@@ -1,0 +1,45 @@
+/* Error / conflict popup. Builds on the page's .modal and .modal-content. */
+.alert-modal-content {
+  border-top: 6px solid #b3261e;
+}
+
+.alert-icon {
+  width: 3rem;
+  height: 3rem;
+  margin: 0 auto 0.75rem;
+  border-radius: 50%;
+  background: #fbeceb;
+  color: #b3261e;
+  font-size: 1.75rem;
+  font-weight: 700;
+  line-height: 3rem;
+}
+
+.alert-modal-content .alert-message {
+  margin: 0;
+  color: var(--text);
+  font-size: 1rem;
+  line-height: 1.4;
+}
+
+.alert-actions {
+  margin-top: 1.5rem;
+  display: flex;
+  justify-content: center;
+}
+
+.modal-button.alert-ok {
+  min-width: 6rem;
+  background: var(--accent);
+  color: #fff;
+  font-weight: 600;
+}
+
+.modal-button.alert-ok:hover {
+  background: var(--accent-dark);
+}
+
+.modal-button.alert-ok:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 2px;
+}

@@ -146,9 +146,7 @@ public class AppointmentService {
     /** Provider creates a new open slot */
     public Appointment createSlot(Appointment appt, long providerId) {
 
-        String category = appt.getCategory();
-
-        if (!category.equals("Beauty")  && !category.equals("Fitness")  && !category.equals("Medical")) {
+        if (!ServiceCategories.isValid(appt.getCategory())) {
             throw new IllegalArgumentException("Invalid category");
         }
 
@@ -166,9 +164,7 @@ public class AppointmentService {
         Appointment existing = getById(updated.getAppointmentId());
         if (existing == null) return null;
 
-        String category = updated.getCategory();
-
-        if (!category.equals("Beauty") && !category.equals("Fitness") && !category.equals("Medical")) {
+        if (!ServiceCategories.isValid(updated.getCategory())) {
             throw new IllegalArgumentException("Invalid category");
         }
 

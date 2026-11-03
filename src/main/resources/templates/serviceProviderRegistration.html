@@ -32,7 +32,11 @@
         <input type="text" id="qualification" name="qualification" th:value="${qualification}" required>
 
         <label for="serviceType">Service Type</label>
-        <input type="text" id="serviceType" name="serviceType" th:value="${serviceType}" required>
+        <select id="serviceType" name="serviceType" required>
+            <option value="" disabled th:selected="${serviceType == null}">Select a service type</option>
+            <option th:each="c : ${categories}" th:value="${c}" th:text="${c}"
+                    th:selected="${c == serviceType}"></option>
+        </select>
 
         <label for="password">Password</label>
         <input type="password" id="password" name="password" required>

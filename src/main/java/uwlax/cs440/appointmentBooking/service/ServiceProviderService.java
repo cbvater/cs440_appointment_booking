@@ -25,6 +25,9 @@ public class ServiceProviderService {
     }
     @Transactional
     public ServiceProvider register(String firstName, String lastName, String password, String username, String qualification, String company, String serviceType) {
+        if (!ServiceCategories.isValid(serviceType)) {
+            throw new IllegalArgumentException("Please choose a service type from the list.");
+        }
         if (password.length() < 8) {
             throw new IllegalArgumentException("Password must be at least 8 characters");
         }

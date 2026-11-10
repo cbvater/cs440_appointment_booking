@@ -1,12 +1,5 @@
 package uwlax.cs440.appointmentBooking.service;
 
-import org.springframework.stereotype.Service;
-import uwlax.cs440.appointmentBooking.model.Appointment;
-import uwlax.cs440.appointmentBooking.model.ServiceProvider;
-import uwlax.cs440.appointmentBooking.repository.AppointmentRepository;
-import uwlax.cs440.appointmentBooking.repository.ServiceProviderRepository;
-import uwlax.cs440.appointmentBooking.service.NotificationService;
-
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -17,6 +10,13 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+
+import org.springframework.stereotype.Service;
+
+import uwlax.cs440.appointmentBooking.model.Appointment;
+import uwlax.cs440.appointmentBooking.model.ServiceProvider;
+import uwlax.cs440.appointmentBooking.repository.AppointmentRepository;
+import uwlax.cs440.appointmentBooking.repository.ServiceProviderRepository;
 
 @Service
 public class AppointmentService {
@@ -54,6 +54,13 @@ public class AppointmentService {
 
     public List<Appointment> getProviderBookings(long providerId) {
         return repo.findByServiceProviderIdAndBookedTrueOrderByTimeAsc(providerId);
+    }
+    /**
+     * Finds all appointments unbooked or not
+     * Used for admin
+     */
+    public List<Appointment> getAllAppointments() {
+        return repo.findAll();
     }
     /**
      * Open (bookable) slots for the "Schedule Appts" search tab, optionally

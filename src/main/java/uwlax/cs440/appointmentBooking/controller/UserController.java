@@ -1,26 +1,27 @@
 package uwlax.cs440.appointmentBooking.controller;
 
-import org.springframework.ui.Model;
-import jakarta.servlet.http.HttpSession;
-import org.springframework.stereotype.Controller;
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.util.UriComponentsBuilder;
+
+import jakarta.servlet.http.HttpSession;
 import uwlax.cs440.appointmentBooking.model.Appointment;
 import uwlax.cs440.appointmentBooking.model.ServiceProvider;
 import uwlax.cs440.appointmentBooking.model.User;
 import uwlax.cs440.appointmentBooking.service.AppointmentService;
 import uwlax.cs440.appointmentBooking.service.NotificationService;
 import uwlax.cs440.appointmentBooking.service.UserService;
-
-import java.time.LocalDate;
-import java.time.LocalTime;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
 
 /**
  * CONTROLLER LAYER: handles web requests and decides what the user sees next.
@@ -128,7 +129,7 @@ public class UserController {
 
         return "userHome";
     }
-
+/*
     @GetMapping("/adminHome")
     public String showAdminHome(HttpSession session) {
         if (!"Admin".equals(session.getAttribute("role"))) {
@@ -136,7 +137,7 @@ public class UserController {
         }
         return "adminHome";
     }
-
+*/
     @PostMapping("/logout")
     public String logout(HttpSession session) {
         session.invalidate();

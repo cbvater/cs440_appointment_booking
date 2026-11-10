@@ -45,7 +45,7 @@
     </div>
 </nav>
 
-<main>
+<main class="provider-home-main">
     <h1>My Appointments</h1>
 
     <div class="appointments-container">
@@ -67,6 +67,9 @@
                     <p><strong>Time: </strong><span th:text="${#temporals.format(appointment.time, 'MMM d, yyyy h:mm a') + ' – ' + #temporals.format(appointment.endTime, 'h:mm a')}"></span></p>
                     <p><strong>Category: </strong><span th:text="${appointment.category}"></span></p>
                     <p><strong>Location: </strong><span th:text="${appointment.location}"></span></p>
+                    <div th:with="provider=${providerProfiles[appointment.serviceProviderId]}">
+                        <p th:if="${provider != null}"><strong>Service Provider: </strong><span th:text="${provider.user.firstName + ' ' + provider.user.lastName + ', ' + provider.company}"></span></p>
+                    </div>
                 </div>
 
                 <!-- only show the cancel button when it isn't already cancelled -->
@@ -91,26 +94,22 @@
                 <div class="slot-info">
                     <h2 th:text="${appointment.name}"></h2>
 
-                    <span th:if="${appointment.cancelled}"
-                          class="cancelled-label">Cancelled</span>
+                    <span th:if="${appointment.cancelled}" class="cancelled-label">Cancelled</span>
 
-                    <p>
-                        <strong>Time: </strong>
-                        <span th:text="${#temporals.format(appointment.time, 'MMM d, yyyy h:mm a')
-                    + ' – ' +
-                    #temporals.format(appointment.endTime, 'h:mm a')}"></span>
-                    </p>
-
-                    <p>
-                        <strong>Category: </strong>
-                        <span th:text="${appointment.category}"></span>
-                    </p>
-
-                    <p>
-                        <strong>Location: </strong>
-                        <span th:text="${appointment.location}"></span>
-                    </p>
+                    <p><strong>Time: </strong><span th:text="${#temporals.format(appointment.time, 'MMM d, yyyy h:mm a') + ' – ' + #temporals.format(appointment.endTime, 'h:mm a')}"></span></p>
+                    <p><strong>Category: </strong><span th:text="${appointment.category}"></span></p>
+                    <p><strong>Location: </strong><span th:text="${appointment.location}"></span></p>
+                    <div th:with="bookedUser=${users[appointment.userId]}">
+                        <p th:if="${bookedUser != null}"><strong>Booked User: </strong><span th:text="${bookedUser.firstName + ' ' + bookedUser.lastName}"></span></p>
+                    </div>
                 </div>
+
+                <!-- only show the cancel button when it isn't already cancelled -->
+                <form th:unless="${appointment.cancelled}"
+                      th:action="@{'/serviceProviderCancelAppt/' + ${appointment.appointmentId}}"
+                      method="post">
+                    <button type="submit" class="dropdown-item cancel-slot">Cancel Appointment</button>
+                </form>
             </div>
         </section>
 

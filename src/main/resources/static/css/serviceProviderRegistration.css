@@ -46,7 +46,7 @@ label {
   font-size: 0.9rem;
 }
 
-input {
+input, select {
   width: 100%;
   margin-bottom: 1rem;
   padding: 0.65rem 0.75rem;
@@ -55,7 +55,7 @@ input {
   font-size: 1rem;
 }
 
-input:focus, button:focus-visible, .register-links a:focus-visible {
+input:focus, select:focus, button:focus-visible, .register-links a:focus-visible {
   outline: 3px solid var(--accent);
   outline-offset: 1px;
 }

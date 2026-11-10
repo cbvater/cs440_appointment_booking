@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Edit Appointment Slots</title>
     <link rel="stylesheet" href="/css/serviceProviderHome.css">
+    <link rel="stylesheet" href="/css/alertModal.css">
 </head>
 
 <body>
@@ -47,8 +48,6 @@
 
 <main>
     <h1>Edit Available Appointment Slots</h1>
-
-    <p class="error" th:if="${error}" th:text="${error}"></p>
 
     <div class="add-slot-container">
         <button class="add-slot-button" id="openAddModal">+ Add New Appointment Slot</button>
@@ -106,6 +105,9 @@
     </div>
 </main>
 
+<!-- ERROR / CONFLICT POPUP -->
+<div th:replace="~{fragments/alertModal :: alertModal(${error})}"></div>
+
 <!-- ADD SLOT MODAL -->
 <div id="addSlotModal" class="modal hidden">
     <div class="modal-content modal-form">
@@ -118,9 +120,7 @@
             <label class="modal-label" for="category">Category</label>
             <select class="modal-input" name="category" id="category" required>
                 <option value="">Select a category</option>
-                <option value="Beauty">Beauty</option>
-                <option value="Fitness">Fitness</option>
-                <option value="Medical">Medical</option>
+                <option th:each="c : ${categories}" th:value="${c}" th:text="${c}"></option>
             </select>
 
             <label class="modal-label" for="time">Start Date & Time</label>
@@ -153,9 +153,7 @@
 
             <label class="modal-label" for="edit-category">Category</label>
             <select class="modal-input" name="category" id="edit-category" required>
-                <option value="Beauty">Beauty</option>
-                <option value="Fitness">Fitness</option>
-                <option value="Medical">Medical</option>
+                <option th:each="c : ${categories}" th:value="${c}" th:text="${c}"></option>
             </select>
 
             <label class="modal-label" for="edit-time">Start Date & Time</label>

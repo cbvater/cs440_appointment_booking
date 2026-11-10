@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<!--
+  Reusable popup for error / conflict messages.
+  Usage (put right after <main>, and link /css/alertModal.css in <head>):
+      <div th:replace="~{fragments/alertModal :: alertModal(${error})}"></div>
+  Renders nothing when the message is null or blank. Needs the page's own
+  .modal / .modal-content / .hidden styles (both userHome.css and
+  serviceProviderHome.css have them).
+-->
+<div th:fragment="alertModal(message)"
+     th:if="${message != null and !#strings.isEmpty(message)}"
+     id="alertModal" class="modal" role="alertdialog" aria-modal="true"
+     aria-labelledby="alertModalTitle" aria-describedby="alertModalMessage">
+    <div class="modal-content alert-modal-content">
+        <div class="alert-icon" aria-hidden="true">!</div>
+        <h2 id="alertModalTitle">Unable to complete request</h2>
+        <p id="alertModalMessage" class="alert-message" th:text="${message}"></p>
+        <div class="alert-actions">
+            <button type="button" id="alertModalOk" class="modal-button alert-ok">OK</button>
+        </div>
+    </div>
+
+    <script>
+        (function () {
+            var modal = document.getElementById('alertModal');
+            var ok = document.getElementById('alertModalOk');
+            if (!modal || !ok) return;
+            function close() { modal.classList.add('hidden'); }
+            ok.addEventListener('click', close);
+            modal.addEventListener('click', function (e) { if (e.target === modal) close(); });
+            document.addEventListener('keydown', function (e) { if (e.key === 'Escape') close(); });
+            ok.focus();
+        })();
+    </script>
+</div>
+
+</body>
+</html>

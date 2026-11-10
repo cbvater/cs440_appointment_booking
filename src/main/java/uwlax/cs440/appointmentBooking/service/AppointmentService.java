@@ -103,6 +103,44 @@ public class AppointmentService {
                 .toList();
     }
 
+    /**
+     * Same as above searchOpenSlots but for service providers.
+     * Hides the appointments the service provider created themselves.
+     * Hides appointments that conflict with created appointments.
+     * Hides appoinments that conflict with booked appointments
+     **/
+    public List<Appointment> searchOpenSlotsforProvider(Long userId, String category, String providerName, LocalDate date, LocalTime startTime, LocalTime endTime) {
+        List<Appointment> open = (category == null || category.isBlank())
+                ? repo.findByBookedFalse()
+                : repo.findByCategoryIgnoreCaseAndBookedFalse(category);
+
+        LocalDateTime now = LocalDateTime.now();
+        Map<Long, ServiceProvider> providers = getProviderProfiles(open);
+        String normalizedProviderName = providerName == null ? "" : providerName.trim().toLowerCase(Locale.ROOT);
+
+        List<Appointment> providerCreatedAppointments = userId == null
+                ? List.of()
+                : repo.findByServiceProviderIdAndCancelledFalse(userId);
+
+        List<Appointment> providerBookedAppointments = userId == null
+                ? List.of()
+                : repo.findByUserIdAndBookedTrueAndCancelledFalse(userId);
+
+        return open.stream()
+                .filter(a -> !a.isCancelled())
+                .filter(a -> a.getServiceProviderId() != userId)
+                .filter(a -> a.getTime().isAfter(now))
+                .filter(a -> date == null || a.getTime().toLocalDate().equals(date))
+                .filter(a -> startTime == null || !a.getTime().toLocalTime().isBefore(startTime))
+                .filter(a -> endTime == null || !a.getTime().toLocalTime().isAfter(endTime))
+                .filter(a -> normalizedProviderName.isBlank()
+                        || providerMatches(providers.get(a.getServiceProviderId()), normalizedProviderName))
+                .filter(a -> providerCreatedAppointments.stream().noneMatch(existing -> overlaps(existing, a)))
+                .filter(a -> providerBookedAppointments.stream().noneMatch(existing -> overlaps(existing, a)))
+                .sorted(Comparator.comparing(Appointment::getTime))
+                .toList();
+    }
+
     public List<Appointment> searchOpenSlots(String category) {
         return searchOpenSlots(category, null, null, null, null);
     }
@@ -153,9 +191,7 @@ public class AppointmentService {
     /** Provider creates a new open slot */
     public Appointment createSlot(Appointment appt, long providerId) {
 
-        String category = appt.getCategory();
-
-        if (!category.equals("Beauty")  && !category.equals("Fitness")  && !category.equals("Medical")) {
+        if (!ServiceCategories.isValid(appt.getCategory())) {
             throw new IllegalArgumentException("Invalid category");
         }
 
@@ -173,9 +209,7 @@ public class AppointmentService {
         Appointment existing = getById(updated.getAppointmentId());
         if (existing == null) return null;
 
-        String category = updated.getCategory();
-
-        if (!category.equals("Beauty") && !category.equals("Fitness") && !category.equals("Medical")) {
+        if (!ServiceCategories.isValid(updated.getCategory())) {
             throw new IllegalArgumentException("Invalid category");
         }
 
@@ -253,6 +287,48 @@ public class AppointmentService {
     }
 
     /**
+     * Service Provider books a slot.
+     *
+     * @throws IllegalStateException if the slot no longer exists, was just
+     *                                taken by someone else, or overlaps a
+     *                                time the user (service provider) already has booked; the
+     *                                message is safe to show to the user (service provider).
+     */
+    public Appointment bookSlotForProvider(long appointmentId, long userId) {
+        Appointment appt = getById(appointmentId);
+        if (appt == null) {
+            throw new IllegalStateException("That appointment no longer exists.");
+        }
+        if (appt.isBooked() || appt.isCancelled()) {
+            throw new IllegalStateException("Sorry, that slot was just taken. Please pick another.");
+        }
+
+        if (!appt.getTime().isAfter(LocalDateTime.now())) {
+            throw new IllegalStateException("That appointment has already started. Please pick another.");
+        }
+
+        // Any overlap with one of the user's active bookings is a conflict,
+        // not just an identical start time.
+        boolean createdConflict = repo.findByServiceProviderIdAndCancelledFalse(userId).stream()
+                .anyMatch(existing -> overlaps(existing, appt));
+
+        boolean bookedConflict = repo.findByUserIdAndBookedTrueAndCancelledFalse(userId).stream()
+                .anyMatch(existing -> overlaps(existing, appt));
+
+        if (createdConflict) {
+            throw new IllegalStateException("That appointment overlaps one you already have created.");
+        }
+        if (bookedConflict) {
+            throw new IllegalStateException("That appointment overlaps one you already have booked");
+        }
+
+        appt.setBooked(true);
+        appt.setUserId(userId);
+
+        return repo.save(appt);
+    }
+
+    /**
      * Rules for a provider's slot times (used when creating and editing).
      *
      * @param excludeId   appointment to ignore when looking for overlaps (the slot
@@ -274,9 +350,13 @@ public class AppointmentService {
         boolean conflict = repo.findByServiceProviderIdAndCancelledFalse(providerId).stream()
                 .filter(other -> other.getAppointmentId() != excludeId)
                 .anyMatch(other -> overlaps(other, start, end));
+        boolean bookedConflict = repo.findByUserIdAndBookedTrueAndCancelledFalse(providerId).stream()
+                .anyMatch(other -> overlaps(other, start, end));
         if (conflict) {
-            throw new IllegalArgumentException(
-                    "That time overlaps another appointment slot you already have.");
+            throw new IllegalArgumentException("That time overlaps another appointment slot you already have.");
+        }
+        if (bookedConflict) {
+            throw new IllegalArgumentException("That time overlaps another appointment you already booked.");
         }
     }
 

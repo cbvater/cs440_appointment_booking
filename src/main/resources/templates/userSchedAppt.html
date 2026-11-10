@@ -2,6 +2,7 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <link rel="stylesheet" href="/css/userHome.css">
+    <link rel="stylesheet" href="/css/alertModal.css">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Schedule Appointment</title>
@@ -49,16 +50,14 @@
     <p>Search open appointment slots and book the one that works for you.</p>
 
     <p class="success" th:if="${param.booked}">Your appointment is booked! You can find it under My Appts.</p>
-    <p class="error" th:if="${error}" th:text="${error}"></p>
 
     <form class="filter-bar" method="get" action="/userSchedAppt">
         <div class="filter-field">
             <label for="category">Category</label>
             <select name="category" id="category">
             <option value="" th:selected="${selectedCategory == null or selectedCategory == ''}">All categories</option>
-            <option value="Medical" th:selected="${selectedCategory == 'Medical'}">Medical</option>
-            <option value="Beauty" th:selected="${selectedCategory == 'Beauty'}">Beauty</option>
-            <option value="Fitness" th:selected="${selectedCategory == 'Fitness'}">Fitness</option>
+            <option th:each="c : ${categories}" th:value="${c}" th:text="${c}"
+                    th:selected="${c == selectedCategory}"></option>
             </select>
         </div>
         <div class="filter-field">
@@ -127,6 +126,9 @@
     </div>
 </main>
 
+<!-- ERROR / CONFLICT POPUP -->
+<div th:replace="~{fragments/alertModal :: alertModal(${error})}"></div>
+
 <!-- BOOK CONFIRMATION MODAL -->
 <div id="bookModal" class="modal hidden">
     <div class="modal-content">
@@ -182,7 +184,7 @@
         });
 
         confirmDelete.addEventListener('click', () => {
-            window.location = '/deleteAccount';
+            alert("Account deletion logic goes here.");
         });
 
         /* BOOK CONFIRMATION MODAL */

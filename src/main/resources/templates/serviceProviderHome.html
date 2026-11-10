@@ -47,28 +47,73 @@
 
 <main>
     <h1>My Appointments</h1>
-    <div th:if="${#lists.isEmpty(appointments)}">
-        <p>You have no booked appointments.</p>
-    </div>
 
-    <div th:each="appointment : ${appointments}" class="slot-card"
-            th:classappend="${appointment.cancelled} ? 'cancelled' : ''">
-        <div class="slot-info">
-            <h2 th:text="${appointment.name}"></h2>
+    <div class="appointments-container">
 
-            <span th:if="${appointment.cancelled}" class="cancelled-label">Cancelled</span>
+        <section class="appointments-panel">
+            <h2>Appointments I Have Booked</h2>
 
-            <p><strong>Time: </strong><span th:text="${#temporals.format(appointment.time, 'MMM d, yyyy h:mm a') + ' – ' + #temporals.format(appointment.endTime, 'h:mm a')}"></span></p>
-            <p><strong>Category: </strong><span th:text="${appointment.category}"></span></p>
-            <p><strong>Location: </strong><span th:text="${appointment.location}"></span></p>
-        </div>
+            <div th:if="${#lists.isEmpty(bookedAppointments)}">
+                <p>You have no booked appointments.</p>
+            </div>
 
-        <!-- only show the cancel button when it isn't already cancelled -->
-        <form th:unless="${appointment.cancelled}"
-              th:action="@{'/serviceProviderCancelAppt/' + ${appointment.appointmentId}}"
-              method="post">
-            <button type="submit" class="dropdown-item cancel-slot">Cancel Appointment</button>
-        </form>
+            <div th:each="appointment : ${bookedAppointments}" class="slot-card"
+                 th:classappend="${appointment.cancelled} ? 'cancelled' : ''">
+                <div class="slot-info">
+                    <h2 th:text="${appointment.name}"></h2>
+
+                    <span th:if="${appointment.cancelled}" class="cancelled-label">Cancelled</span>
+
+                    <p><strong>Time: </strong><span th:text="${#temporals.format(appointment.time, 'MMM d, yyyy h:mm a') + ' – ' + #temporals.format(appointment.endTime, 'h:mm a')}"></span></p>
+                    <p><strong>Category: </strong><span th:text="${appointment.category}"></span></p>
+                    <p><strong>Location: </strong><span th:text="${appointment.location}"></span></p>
+                </div>
+
+                <!-- only show the cancel button when it isn't already cancelled -->
+                <form th:unless="${appointment.cancelled}"
+                      th:action="@{'/serviceProviderCancelAppt/' + ${appointment.appointmentId}}"
+                      method="post">
+                    <button type="submit" class="dropdown-item cancel-slot">Cancel Appointment</button>
+                </form>
+            </div>
+        </section>
+
+        <section class="appointments-panel">
+            <h2>Appointments Booked With Me</h2>
+
+            <div th:if="${#lists.isEmpty(providerAppointments)}">
+                <p>No customers have booked appointments with you.</p>
+            </div>
+
+            <div th:each="appointment : ${providerAppointments}" class="slot-card"
+                 th:classappend="${appointment.cancelled} ? 'cancelled' : ''">
+
+                <div class="slot-info">
+                    <h2 th:text="${appointment.name}"></h2>
+
+                    <span th:if="${appointment.cancelled}"
+                          class="cancelled-label">Cancelled</span>
+
+                    <p>
+                        <strong>Time: </strong>
+                        <span th:text="${#temporals.format(appointment.time, 'MMM d, yyyy h:mm a')
+                    + ' – ' +
+                    #temporals.format(appointment.endTime, 'h:mm a')}"></span>
+                    </p>
+
+                    <p>
+                        <strong>Category: </strong>
+                        <span th:text="${appointment.category}"></span>
+                    </p>
+
+                    <p>
+                        <strong>Location: </strong>
+                        <span th:text="${appointment.location}"></span>
+                    </p>
+                </div>
+            </div>
+        </section>
+
     </div>
 </main>
 

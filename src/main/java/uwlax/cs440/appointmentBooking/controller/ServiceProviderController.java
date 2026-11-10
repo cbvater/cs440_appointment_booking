@@ -1,5 +1,6 @@
 package uwlax.cs440.appointmentBooking.controller;
 
+import java.util.HashMap;
 import java.util.List;
 
 import org.springframework.stereotype.Controller;
@@ -15,11 +16,14 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import org.springframework.web.util.UriComponentsBuilder;
+import jakarta.servlet.http.HttpSession;
 import uwlax.cs440.appointmentBooking.model.Appointment;
 import uwlax.cs440.appointmentBooking.model.ServiceProvider;
 import uwlax.cs440.appointmentBooking.service.AppointmentService;
 import uwlax.cs440.appointmentBooking.service.NotificationService;
 import uwlax.cs440.appointmentBooking.service.ServiceProviderService;
+import uwlax.cs440.appointmentBooking.repository.UserRepository;
+import uwlax.cs440.appointmentBooking.model.User;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -32,13 +36,16 @@ public class ServiceProviderController {
     private final ServiceProviderService serviceProviderService;
     private final AppointmentService appointmentService;
     private final NotificationService notificationService;
+    private final UserRepository userRepository;
 
     public ServiceProviderController(ServiceProviderService serviceProviderService,
                                      AppointmentService appointmentService,
-                                     NotificationService notificationService) {
+                                     NotificationService notificationService,
+                                     UserRepository userRepository) {
         this.serviceProviderService = serviceProviderService;
         this.appointmentService = appointmentService;
         this.notificationService = notificationService;
+        this.userRepository = userRepository;
     }
 
     // ------------------------------------------------------------
@@ -98,14 +105,18 @@ public class ServiceProviderController {
         }
 
         long providerId = (long) session.getAttribute("userId");
-        List<Appointment> bookedAppointments =
-                appointmentService.getCustomerBookingsInOrder(providerId);
-
-        List<Appointment> providerAppointments =
-                appointmentService.getProviderBookings(providerId);
+        List<Appointment> bookedAppointments = appointmentService.getCustomerBookingsInOrder(providerId);
+        List<Appointment> providerAppointments = appointmentService.getProviderBookings(providerId);
+        Map<Long, ServiceProvider> providerProfiles = appointmentService.getProviderProfiles(bookedAppointments);
+        Map<Long, User> users = new HashMap<>();
+        for (Appointment appt : providerAppointments) {
+            userRepository.findById(appt.getUserId()).ifPresent(user -> users.put(user.getUserId(), user));
+        }
 
         model.addAttribute("bookedAppointments", bookedAppointments);
         model.addAttribute("providerAppointments", providerAppointments);
+        model.addAttribute("providerProfiles", providerProfiles);
+        model.addAttribute("users", users);
 
         return "serviceProviderHome";
     }

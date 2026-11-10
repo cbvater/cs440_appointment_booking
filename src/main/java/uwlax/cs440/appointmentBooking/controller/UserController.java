@@ -124,8 +124,10 @@ public class UserController {
         long userID = (long) session.getAttribute("userId");
 
         List<Appointment> appointments = appointmentService.getCustomerBookingsInOrder(userID);
+        Map<Long, ServiceProvider> providerProfiles = appointmentService.getProviderProfiles(appointments);
 
         model.addAttribute("appointments", appointments);
+        model.addAttribute("providerProfiles", providerProfiles);
 
         return "userHome";
     }

@@ -527,4 +527,23 @@ main p {
     .book-slot-button {
         width: 100%;
     }
+
+    .appointments-container {
+            flex-direction: column;
+        }
+}
+
+.appointments-container {
+    display: flex;
+    gap: 20px;
+    align-items: flex-start;
+}
+
+.appointments-panel {
+    flex: 1;
+}
+
+.provider-home-main {
+    width: 100%%;
+    max-width: 1400px;
 }

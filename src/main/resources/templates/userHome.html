@@ -62,6 +62,9 @@
             <p><strong>Time: </strong><span th:text="${#temporals.format(appointment.time, 'MMM d, yyyy h:mm a') + ' – ' + #temporals.format(appointment.endTime, 'h:mm a')}"></span></p>
             <p><strong>Category: </strong><span th:text="${appointment.category}"></span></p>
             <p><strong>Location: </strong><span th:text="${appointment.location}"></span></p>
+            <div th:with="provider=${providerProfiles[appointment.serviceProviderId]}">
+                <p th:if="${provider != null}"><strong>Service Provider: </strong><span th:text="${provider.user.firstName + ' ' + provider.user.lastName + ', ' + provider.company}"></span></p>
+            </div>
         </div>
 
         <form th:unless="${appointment.cancelled}"

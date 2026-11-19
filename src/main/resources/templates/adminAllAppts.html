@@ -48,6 +48,37 @@
 <main>
     <h1>All Appointments</h1>
 
+    <form class="filter-bar" method="get" action="/adminAllAppts">
+        <div class="filter-field">
+            <label for="category">Category</label>
+            <select name="category" id="category">
+            <option value="" th:selected="${selectedCategory == null or selectedCategory == ''}">All categories</option>
+            <option value="Medical" th:selected="${selectedCategory == 'Medical'}">Medical</option>
+            <option value="Beauty" th:selected="${selectedCategory == 'Beauty'}">Beauty</option>
+            <option value="Fitness" th:selected="${selectedCategory == 'Fitness'}">Fitness</option>
+            </select>
+        </div>
+        <div class="filter-field">
+            <label for="providerName">Provider name</label>
+            <input type="search" id="providerName" name="providerName"
+                   placeholder="Search by name" th:value="${providerName}">
+        </div>
+        <div class="filter-field">
+            <label for="date">Date</label>
+            <input type="date" id="date" name="date" th:value="${selectedDate}">
+        </div>
+        <div class="filter-field">
+            <label for="startTime">From</label>
+            <input type="time" id="startTime" name="startTime" th:value="${startTime}">
+        </div>
+        <div class="filter-field">
+            <label for="endTime">To</label>
+            <input type="time" id="endTime" name="endTime" th:value="${endTime}">
+        </div>
+        <button type="submit" class="search-button">Search Appointments</button>
+        <a class="clear-search" href="/adminAllAppts">Clear</a>
+    </form>
+
     <div th:each="appointment : ${appointments}" class="slot-card"
          th:classappend="${appointment.cancelled} ? 'cancelled' : ''">
 

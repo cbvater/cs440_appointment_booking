@@ -60,8 +60,41 @@ public class AppointmentService {
      * Used for admin
      */
     public List<Appointment> getAllAppointments() {
-        return repo.findAll();
+        return repo.findAll().stream()
+                            .sorted(Comparator.comparing(Appointment::getTime))
+                            .toList();
     }
+
+    public List<Appointment> searchAllAppointments(String category, String providerName,
+                                             LocalDate date, LocalTime startTime, LocalTime endTime) {
+        return searchOpenSlots(null, category, providerName, date, startTime, endTime);
+    }
+
+    public List<Appointment> searchAllAppointments(Long userId, String category, String providerName,
+                                             LocalDate date, LocalTime startTime, LocalTime endTime) {
+        List<Appointment> appointments = getAllAppointments();
+
+        Map<Long, ServiceProvider> providers = getProviderProfiles(appointments);
+        String normalizedProviderName = providerName == null ? "" : providerName.trim().toLowerCase(Locale.ROOT);
+
+        return appointments.stream()
+                .filter(a -> category == null || category.isBlank()
+                    || (a.getCategory() != null &&
+                    a.getCategory().equalsIgnoreCase(category)))
+            .filter(a -> date == null ||
+                    a.getTime().toLocalDate().equals(date))
+            .filter(a -> startTime == null ||
+                    !a.getTime().toLocalTime().isBefore(startTime))
+            .filter(a -> endTime == null ||
+                    !a.getTime().toLocalTime().isAfter(endTime))
+            .filter(a -> normalizedProviderName.isBlank()
+                    || providerMatches(
+                            providers.get(a.getServiceProviderId()),
+                            normalizedProviderName))
+            .sorted(Comparator.comparing(Appointment::getTime))
+            .toList();
+    }
+
     /**
      * Open (bookable) slots for the "Schedule Appts" search tab, optionally
      * narrowed to one category. Cancelled slots and slots already in the past

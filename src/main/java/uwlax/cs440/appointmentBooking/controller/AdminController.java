@@ -18,6 +18,7 @@ import jakarta.servlet.http.HttpSession;
 import uwlax.cs440.appointmentBooking.model.Appointment;
 import uwlax.cs440.appointmentBooking.model.ServiceProvider;
 import uwlax.cs440.appointmentBooking.service.AppointmentService;
+import uwlax.cs440.appointmentBooking.service.NotificationService;
 import uwlax.cs440.appointmentBooking.service.UserService;
 
 /**
@@ -45,10 +46,16 @@ import uwlax.cs440.appointmentBooking.service.UserService;
  */
 @Controller
 public class AdminController {
+    //private final UserService userService;
     private final AppointmentService appointmentService;
+    private final NotificationService notificationService;
 
-    public AdminController(UserService userService, AppointmentService appointmentService){
+    public AdminController(UserService userService,
+                          AppointmentService appointmentService,
+                          NotificationService notificationService){
+        //this.userService = userService;
         this.appointmentService = appointmentService;
+        this.notificationService = notificationService;
     }
 
     @GetMapping("/adminHome")
@@ -149,17 +156,57 @@ public class AdminController {
     }
 
     @GetMapping("/adminAllAppts")
-    public String adminAllAppts(HttpSession session, Model model) {
+    public String adminAllAppts(@RequestParam(required = false) String category,
+                                @RequestParam(required = false) String providerName,
+                                @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+                                LocalDate date,
+                                @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.TIME)
+                                LocalTime startTime,
+                                @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.TIME)
+                                LocalTime endTime,
+                                HttpSession session,
+                                Model model) {
         if (!"Admin".equals(session.getAttribute("role"))) {
             return "redirect:/login";
         }
 
-        List<Appointment> appointments = appointmentService.getAllAppointments();
-
+        List<Appointment> appointments = appointmentService.searchAllAppointments(
+            null, category, providerName, date, startTime, endTime
+        );
+        Map<Long, ServiceProvider> providerProfiles = appointmentService.getProviderProfiles(appointments);
         model.addAttribute("appointments", appointments);
+        model.addAttribute("providerProfiles", providerProfiles);
+        model.addAttribute("selectedCategory", category);
+        model.addAttribute("providerName", providerName);
+        model.addAttribute("selectedDate", date);
+        model.addAttribute("startTime", startTime);
+        model.addAttribute("endTime", endTime);
 
         return "adminAllAppts";
 
     }
 
+
+
+// ------------------------------------------------------------
+    // NOTIFICATIONS
+    // ------------------------------------------------------------
+
+    @GetMapping("/adminNotifications")
+    public String notifications(HttpSession session, Model model) {
+        if (!"Admin".equals(session.getAttribute("role"))) {
+            return "redirect:/login";
+        }
+        long userId = (long) session.getAttribute("userId");
+        model.addAttribute("notifications", notificationService.getNotifications(userId));
+        return "adminNotifications";
+    }
+    @PostMapping("/adminNotifications/markChecked")
+    public String markChecked(HttpSession session) {
+        if (!"Admin".equals(session.getAttribute("role"))) {
+            return "redirect:/login";
+        }
+        notificationService.markAllChecked((long) session.getAttribute("userId"));
+        return "redirect:/adminNotifications";
+    }
 }
